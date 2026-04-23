@@ -1,0 +1,7 @@
+{
+  "html.validate.scripts": true,
+  "html.validate.styles": true,
+  "files.associations": {
+    "*.html": "jinja-html"
+  }
+}
