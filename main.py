@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from model_loader import predict_risk, get_school_list
+from model_loader import predict_risk_with_perturbation, get_school_list
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -65,7 +65,7 @@ async def predict(
     user = get_current_user(request)
     if not user:
         return RedirectResponse("/", status_code=303)
-    result = predict_risk(gpa, admission, degree, school)
+    result = predict_risk_with_perturbation(gpa, admission, degree, school)
     return templates.TemplateResponse(request, "index.html", {
         "user": user,
         "result": result,

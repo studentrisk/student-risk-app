@@ -37,6 +37,7 @@ with open("models/SMOTE_Gradient_Boosting_SMOTE.pkl", "rb") as f:
 
 
 def predict_risk(gpa: float, admission: str, degree: str, school: str) -> dict:
+    """ทำนายแบบเดิม (ไม่มี perturbation) — เก็บไว้เพื่อ backward-compat"""
     X = pd.DataFrame([{
         "คะแนนเฉลี่ยก่อนรับเข้า": gpa,
         "วิธีรับเข้า": admission,
@@ -49,6 +50,86 @@ def predict_risk(gpa: float, admission: str, degree: str, school: str) -> dict:
         "risk_percent": round(float(prob[0]) * 100, 1),
         "success_percent": round(float(prob[1]) * 100, 1),
         "label": "เสี่ยงพ้นสภาพ" if result == 0 else "ปลอดภัย"
+    }
+
+
+def predict_risk_with_perturbation(
+    gpa: float,
+    admission: str,
+    degree: str,
+    school: str,
+    n_perturbations: int = 30,
+    gpa_noise_std: float = 0.05,
+) -> dict:
+    """
+    Perturbation-based Smoothing
+    ─────────────────────────────
+    สร้าง n_perturbations ตัวอย่างโดยบวก Gaussian noise เล็กน้อยที่ค่า GPA
+    แล้วเฉลี่ยความน่าจะเป็นจากทุกตัวอย่างเพื่อลดการแกว่งของผลลัพธ์
+
+    Parameters
+    ----------
+    gpa              : ค่า GPA ต้นฉบับ
+    admission        : วิธีรับเข้า
+    degree           : วุฒิการศึกษา
+    school           : โรงเรียน / สถาบัน
+    n_perturbations  : จำนวนตัวอย่าง perturbed (ไม่รวม original)
+    gpa_noise_std    : ค่าเบี่ยงเบนมาตรฐานของ noise ที่ GPA
+    """
+    rng = np.random.default_rng(seed=42)
+
+    # สร้าง GPA values: 1 ต้นฉบับ + n_perturbations ที่มี noise
+    noise = rng.normal(0.0, gpa_noise_std, size=n_perturbations)
+    gpa_values = np.clip(
+        np.concatenate([[gpa], gpa + noise]),
+        0.0, 4.0
+    )  # shape: (n_perturbations + 1,)
+
+    # สร้าง DataFrame หลายแถว (batch) เพื่อเรียก predict_proba ครั้งเดียว
+    rows = [
+        {
+            "คะแนนเฉลี่ยก่อนรับเข้า": float(g),
+            "วิธีรับเข้า": admission,
+            "วุฒิ": degree,
+            "จบการศึกษาจาก": school,
+        }
+        for g in gpa_values
+    ]
+    X_batch = pd.DataFrame(rows)
+
+    # ── Batch predict ──────────────────────────────────────────────────────
+    probs = pipeline.predict_proba(X_batch)  # shape: (n+1, 2)
+
+    # ── เฉลี่ยความน่าจะเป็นข้ามทุก sample ────────────────────────────────
+    mean_probs = probs.mean(axis=0)          # [p_risk, p_safe]
+    risk_mean  = float(mean_probs[0])
+    safe_mean  = float(mean_probs[1])
+
+    # ── Stability: std ของ risk prob ข้ามตัวอย่าง perturbed ──────────────
+    perturb_std = float(probs[:, 0].std())   # ยิ่งน้อย ยิ่งเสถียร
+
+    # ── Confidence: ระยะห่างจาก boundary (0.5) ───────────────────────────
+    gap = abs(risk_mean - 0.5)
+    if gap >= 0.25:
+        confidence = "สูง"
+        confidence_en = "high"
+    elif gap >= 0.10:
+        confidence = "ปานกลาง"
+        confidence_en = "medium"
+    else:
+        confidence = "ต่ำ"
+        confidence_en = "low"
+
+    label = "เสี่ยงพ้นสภาพ" if risk_mean >= 0.5 else "ปลอดภัย"
+
+    return {
+        "risk_percent":    round(risk_mean * 100, 1),
+        "success_percent": round(safe_mean * 100, 1),
+        "label":           label,
+        "confidence":      confidence,
+        "confidence_en":   confidence_en,
+        "perturb_std":     round(perturb_std * 100, 1),  # หน่วยเป็น %
+        "n_perturbations": n_perturbations,
     }
 
 
