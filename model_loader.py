@@ -26,23 +26,25 @@ class StudentRiskEncoder(BaseEstimator, TransformerMixin):
             deg = self.DEG_MAP.get(str(row.get("วุฒิ", "")), 0)
             size = self.school_lookup.get(str(row.get("จบการศึกษาจาก", "")), -1)
             gpa = float(row.get("คะแนนเฉลี่ยก่อนรับเข้า", 0))
-            result.append([gpa, adm, deg, size])
+            grade_y1s1 = float(row.get("เกรดปีแรกเทอมแรก", 0))
+            result.append([gpa, adm, deg, size, grade_y1s1])
         return np.array(result, dtype=float)
 
 
 sys.modules["__main__"].StudentRiskEncoder = StudentRiskEncoder
 
-with open("models/SMOTE_Gradient_Boosting_SMOTE.pkl", "rb") as f:
+with open("models/SMOTE_Gradient_Boosting_SMOTE_5_Feature.pkl", "rb") as f:
     pipeline = pickle.load(f)
 
 
-def predict_risk(gpa: float, admission: str, degree: str, school: str) -> dict:
+def predict_risk(gpa: float, admission: str, degree: str, school: str, grade_y1s1: float = 0.0) -> dict:
     """ทำนายแบบเดิม (ไม่มี perturbation) — เก็บไว้เพื่อ backward-compat"""
     X = pd.DataFrame([{
         "คะแนนเฉลี่ยก่อนรับเข้า": gpa,
         "วิธีรับเข้า": admission,
         "วุฒิ": degree,
-        "จบการศึกษาจาก": school
+        "จบการศึกษาจาก": school,
+        "เกรดปีแรกเทอมแรก": grade_y1s1,
     }])
     prob = pipeline.predict_proba(X)[0]
     result = pipeline.predict(X)[0]
@@ -58,6 +60,7 @@ def predict_risk_with_perturbation(
     admission: str,
     degree: str,
     school: str,
+    grade_y1s1: float = 0.0,
     n_perturbations: int = 30,
     gpa_noise_std: float = 0.05,
 ) -> dict:
@@ -73,6 +76,7 @@ def predict_risk_with_perturbation(
     admission        : วิธีรับเข้า
     degree           : วุฒิการศึกษา
     school           : โรงเรียน / สถาบัน
+    grade_y1s1       : เกรดเฉลี่ยปีแรกเทอมแรก (0.00 – 4.00)
     n_perturbations  : จำนวนตัวอย่าง perturbed (ไม่รวม original)
     gpa_noise_std    : ค่าเบี่ยงเบนมาตรฐานของ noise ที่ GPA
     """
@@ -92,6 +96,7 @@ def predict_risk_with_perturbation(
             "วิธีรับเข้า": admission,
             "วุฒิ": degree,
             "จบการศึกษาจาก": school,
+            "เกรดปีแรกเทอมแรก": grade_y1s1,
         }
         for g in gpa_values
     ]

@@ -60,15 +60,16 @@ async def predict(
     gpa: float = Form(...),
     admission: str = Form(...),
     degree: str = Form(...),
-    school: str = Form(...)
+    school: str = Form(...),
+    grade_y1s1: float = Form(...)
 ):
     user = get_current_user(request)
     if not user:
         return RedirectResponse("/", status_code=303)
-    result = predict_risk_with_perturbation(gpa, admission, degree, school)
+    result = predict_risk_with_perturbation(gpa, admission, degree, school, grade_y1s1)
     return templates.TemplateResponse(request, "index.html", {
         "user": user,
         "result": result,
         "schools": SCHOOL_LIST,
-        "form": {"gpa": gpa, "admission": admission, "degree": degree, "school": school}
+        "form": {"gpa": gpa, "admission": admission, "degree": degree, "school": school, "grade_y1s1": grade_y1s1}
     })
