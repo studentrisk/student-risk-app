@@ -1,60 +1,74 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>เข้าสู่ระบบ — ระบบประเมินความเสี่ยงนักศึกษา</title>
+  <title>เข้าสู่ระบบ — ระบบประเมินความเสี่ยงการพ้นสภาพนักศึกษา</title>
+
+  <!-- 1. นำเข้าไฟล์ CSS ของ FirebaseUI เพื่อให้หน้าต่างสวยงาม -->
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css" />
+
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: 'Sarabun', sans-serif;
       min-height: 100vh;
       background: linear-gradient(135deg, #e8f4f8 0%, #d6eaf8 100%);
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 1rem;
     }
+
     .card {
-      background: white; border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-      padding: 2.5rem 2rem; width: 100%; max-width: 400px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 400px;
     }
-    .logo { text-align: center; margin-bottom: 2rem; }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
     .logo-icon {
-      width: 64px; height: 64px; border-radius: 16px;
-      background: #2980b9; display: inline-flex;
-      align-items: center; justify-content: center;
-      font-size: 28px; margin-bottom: 1rem;
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: #2980b9;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 1rem;
     }
-    h1 { font-size: 1.3rem; color: #1a3a4a; font-weight: 600; }
-    p.sub { font-size: 0.85rem; color: #7f8c8d; margin-top: 4px; }
-    label { display: block; font-size: 0.85rem; color: #4a5568; margin-bottom: 6px; font-weight: 500; }
-    input {
-      width: 100%; padding: 0.7rem 1rem; border: 1.5px solid #e2e8f0;
-      border-radius: 8px; font-size: 1rem; font-family: inherit;
-      transition: border-color 0.2s;
+
+    h1 {
+      font-size: 1.3rem;
+      color: #1a3a4a;
+      font-weight: 600;
     }
-    input:focus { outline: none; border-color: #2980b9; }
-    .field { margin-bottom: 1.2rem; }
-    .error {
-      background: #fdecea; border: 1px solid #f5c6c6;
-      color: #c0392b; padding: 0.7rem 1rem;
-      border-radius: 8px; font-size: 0.85rem; margin-bottom: 1rem;
+
+    p.sub {
+      font-size: 0.85rem;
+      color: #7f8c8d;
+      margin-top: 4px;
     }
-    button {
-      width: 100%; padding: 0.8rem; background: #2980b9;
-      color: white; border: none; border-radius: 8px;
-      font-size: 1rem; font-family: inherit;
-      cursor: pointer; font-weight: 500; transition: background 0.2s;
-    }
-    button:hover { background: #2471a3; }
-    .hint {
-      margin-top: 1.5rem; padding: 1rem;
-      background: #f0f7ff; border-radius: 8px; font-size: 0.8rem; color: #5a7a8a;
-    }
-    .hint strong { display: block; margin-bottom: 4px; color: #2980b9; }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
+
 <body>
   <div class="card">
     <div class="logo">
@@ -63,27 +77,68 @@
       <p class="sub">สำหรับอาจารย์ที่ปรึกษาเท่านั้น</p>
     </div>
 
-    {% if error %}
-    <div class="error">{{ error }}</div>
-    {% endif %}
+    <!-- 2. กล่องเปล่าๆ ที่เดี๋ยวเราจะให้ FirebaseUI มาเสกหน้าต่าง Login ใส่ตรงนี้ -->
+    <div id="firebaseui-auth-container"></div>
 
-    <form method="post" action="/login">
-      <div class="field">
-        <label>รหัสอาจารย์</label>
-        <input type="text" name="teacher_id" placeholder="เช่น T001" required autocomplete="username">
-      </div>
-      <div class="field">
-        <label>รหัสผ่าน</label>
-        <input type="password" name="password" placeholder="••••••••" required autocomplete="current-password">
-      </div>
-      <button type="submit">เข้าสู่ระบบ</button>
-    </form>
-
-    <div class="hint">
-      <strong>บัญชีทดสอบ</strong>
-      รหัสอาจารย์: T001 &nbsp;|&nbsp; รหัสผ่าน: 1234<br>
-      รหัสอาจารย์: T002 &nbsp;|&nbsp; รหัสผ่าน: 5678
-    </div>
   </div>
+
+  <!-- 3. นำเข้าไฟล์ JavaScript ของ Firebase (แบบ Compat เพื่อให้ใช้กับ FirebaseUI ได้ง่าย) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.js"></script>
+
+  <script>
+    // ==========================================
+    // 🔑 4. นำกุญแจดอกที่ 1 (firebaseConfig) ของคุณมาวางทับตรงนี้
+    // ==========================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyBnmQ7tfc3stfCMfOAy-x56PWqRRoKo1uE",
+      authDomain: "student-risk-auth.firebaseapp.com",
+      projectId: "student-risk-auth",
+      storageBucket: "student-risk-auth.firebasestorage.app",
+      messagingSenderId: "985301039293",
+      appId: "1:985301039293:web:f00622747543ced8921fd4",
+      measurementId: "G-WN1SL25ZQ7"
+    };
+
+    // เริ่มต้นเชื่อมต่อ Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // สร้างตัวแปรสำหรับควบคุมหน้าต่าง UI
+    var ui = new firebaseui.auth.AuthUI(firebase.auth());
+
+    // ตั้งค่าหน้าต่าง Login
+    var uiConfig = {
+      callbacks: {
+        // เมื่อล็อกอินสำเร็จ ให้ทำอะไรต่อ?
+        signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+          // ขอ Token (บัตรผ่าน) จาก Firebase
+          authResult.user.getIdToken().then(function (token) {
+            // เอา Token ยัดใส่ Cookie ให้ FastAPI มองเห็น
+            document.cookie = "session=" + token + "; path=/; max-age=3600";
+            // สั่งเปลี่ยนหน้าไปที่ Dashboard
+            window.location.href = "/dashboard";
+          });
+          // คืนค่า false เพื่อไม่ให้ UI มัน redirect เองมั่วๆ เราจะจัดการ redirect เองด้านบน
+          return false;
+        }
+      },
+      // เลือกวิธีการล็อกอิน (เราใช้แค่ Email)
+      signInOptions: [
+        {
+          provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+          requireDisplayName: false, // ไม่ต้องถามชื่อ
+          disableSignUp: {
+            status: true, // 🌟 ล็อกไม่ให้มีปุ่มสมัครสมาชิกใหม่ (ป้องกันคนนอก)
+            helpLink: "mailto:admin@your-school.ac.th" // ถ้าใครอยากขอรหัส ให้คลิกเมล์นี้ (แก้เมล์ได้)
+          }
+        }
+      ],
+    };
+
+    // สั่งให้หน้าต่าง UI ปรากฏตัวขึ้นมาในกล่อง <div id="firebaseui-auth-container">
+    ui.start('#firebaseui-auth-container', uiConfig);
+  </script>
 </body>
+
 </html>
