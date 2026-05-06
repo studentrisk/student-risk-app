@@ -1,12 +1,40 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" data-theme="dark">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ประเมินความเสี่ยง — ระบบประเมินความเสี่ยงการพ้นสภาพนักศึกษา</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+  <title>Dashboard — ระบบประเมินความเสี่ยงการพ้นสภาพนักศึกษา</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: #0f1229;
+      --card: #1a1f3c;
+      --accent: #7c5cbf;
+      --accent2: #2980b9;
+      --text: #fff;
+      --text2: #a0aec0;
+      --border: #2a3060;
+      --nav: #1a1f3c;
+      --input: #0f1229;
+      --input-border: #2a3060;
+      --sidebar: #1a1f3c;
+    }
+
+    [data-theme="light"] {
+      --bg: #e8f4f8;
+      --card: #fff;
+      --accent: #7c5cbf;
+      --accent2: #2980b9;
+      --text: #1a1f3c;
+      --text2: #4a5568;
+      --border: #dce6ef;
+      --nav: #1a1f3c;
+      --input: #f8fbfd;
+      --input-border: #dce6ef;
+      --sidebar: #f0f4f8;
+    }
+
     *,
     *::before,
     *::after {
@@ -17,88 +45,201 @@
 
     body {
       font-family: 'Sarabun', sans-serif;
-      background: #f0f4f8;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
-      color: #2d3748;
+      transition: background .3s, color .3s;
     }
 
+    /* NAV */
     nav {
-      background: white;
-      padding: 0 1.5rem;
+      background: var(--nav);
+      height: 56px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      height: 60px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+      padding: 0 1.5rem;
+      gap: 1rem;
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .3);
     }
 
     .nav-brand {
-      font-weight: 600;
-      color: #2980b9;
-      font-size: 1rem;
+      font-weight: 700;
+      font-size: .95rem;
+      color: #fff;
       display: flex;
       align-items: center;
       gap: 8px;
+      white-space: nowrap;
+      margin-right: .5rem;
     }
 
-    .nav-user {
-      font-size: 0.85rem;
-      color: #718096;
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .nav-tab {
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: .82rem;
+      font-weight: 500;
+      color: #a0aec0;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: inherit;
+      transition: background .2s, color .2s;
+    }
+
+    .nav-tab:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, .08);
+    }
+
+    .nav-tab.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(124, 92, 191, .4);
+    }
+
+    .nav-right {
       display: flex;
       align-items: center;
       gap: 12px;
+      margin-left: auto;
     }
 
-    .nav-user a {
+    .nav-user {
+      font-size: .82rem;
+      color: #a0aec0;
+    }
+
+    .nav-logout {
+      font-size: .78rem;
       color: #e74c3c;
       text-decoration: none;
-      font-size: 0.8rem;
     }
 
-    .nav-user a:hover {
+    .nav-logout:hover {
       text-decoration: underline;
     }
 
-    main {
-      max-width: 760px;
-      margin: 2rem auto;
-      padding: 0 1rem;
+    .theme-btn {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: none;
+      color: var(--text2);
+      font-size: .78rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .2s;
     }
 
-    h2 {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #1a3a4a;
-      margin-bottom: 1.5rem;
+    .theme-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
     }
 
+    /* LAYOUT */
+    .page {
+      display: grid;
+      grid-template-columns: 1fr 260px;
+      gap: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    @media(max-width:900px) {
+      .page {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* MOBILE NAV */
+    @media(max-width:640px) {
+      nav {
+        height: auto;
+        padding: .5rem .75rem;
+        flex-wrap: wrap;
+        gap: .4rem;
+      }
+
+      .nav-brand {
+        font-size: .82rem;
+        order: 1;
+      }
+
+      .nav-right {
+        order: 2;
+        gap: 6px;
+      }
+
+      .nav-tabs {
+        order: 3;
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 2px;
+        padding-bottom: .25rem;
+      }
+
+      .nav-tab {
+        font-size: .72rem;
+        padding: 4px 10px;
+      }
+
+      .nav-user {
+        display: none;
+      }
+
+      .theme-btn {
+        font-size: .7rem;
+        padding: 4px 8px;
+      }
+    }
+
+    @media(max-width:400px) {
+      .nav-brand {
+        font-size: .75rem;
+      }
+
+      .nav-tab {
+        font-size: .68rem;
+        padding: 3px 8px;
+      }
+    }
+
+    /* CARD */
     .card {
-      background: white;
+      background: var(--card);
       border-radius: 16px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-      padding: 1.8rem;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
       margin-bottom: 1.5rem;
     }
 
     .card-title {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: #2980b9;
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--accent);
       margin-bottom: 1.2rem;
-      padding-bottom: 0.7rem;
-      border-bottom: 1.5px solid #e8f4f8;
+      padding-bottom: .7rem;
+      border-bottom: 1px solid var(--border);
     }
 
+    /* FORM */
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1rem;
     }
 
-    @media (max-width: 540px) {
+    @media(max-width:540px) {
       .grid {
         grid-template-columns: 1fr;
       }
@@ -107,211 +248,211 @@
     .field {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
     }
 
     .field.full {
-      grid-column: 1 / -1;
+      grid-column: 1/-1;
     }
 
     label {
-      font-size: 0.82rem;
-      font-weight: 500;
-      color: #4a5568;
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--text2);
     }
 
     label span {
-      color: #e74c3c;
+      color: #ef4444;
     }
 
     input[type=number],
     input[type=text],
     select {
-      padding: 0.65rem 0.9rem;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 8px;
-      font-size: 0.95rem;
+      padding: .65rem .9rem;
+      border: 1.5px solid var(--input-border);
+      border-radius: 9px;
+      font-size: .9rem;
       font-family: inherit;
-      transition: border-color 0.2s;
-      background: white;
+      background: var(--input);
+      color: var(--text);
+      transition: border-color .2s;
       width: 100%;
     }
 
     input:focus,
     select:focus {
       outline: none;
-      border-color: #2980b9;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124, 92, 191, .15);
     }
 
-    .hint-text {
-      font-size: 0.75rem;
-      color: #a0aec0;
+    .hint {
+      font-size: .72rem;
+      color: var(--text2);
     }
 
     button[type=submit] {
       width: 100%;
-      padding: 0.85rem;
-      background: #2980b9;
-      color: white;
+      padding: .8rem;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: #fff;
       border: none;
       border-radius: 10px;
-      font-size: 1rem;
+      font-size: .95rem;
       font-family: inherit;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
-      margin-top: 0.5rem;
+      margin-top: .5rem;
+      transition: opacity .2s, transform .15s;
+      box-shadow: 0 4px 14px rgba(124, 92, 191, .35);
     }
 
     button[type=submit]:hover {
-      background: #2471a3;
+      opacity: .9;
     }
 
     button[type=submit]:active {
-      transform: scale(0.99);
+      transform: scale(.99);
     }
 
+    /* RESULT */
     .result-card {
-      border-radius: 16px;
-      padding: 1.8rem;
+      border-radius: 14px;
+      padding: 1.5rem;
       text-align: center;
       margin-bottom: 1.5rem;
-      animation: fadeIn 0.4s ease;
+      animation: fadeIn .4s ease;
     }
 
     @keyframes fadeIn {
       from {
         opacity: 0;
-        transform: translateY(8px);
+        transform: translateY(8px)
       }
 
       to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0)
       }
     }
 
     .result-card.danger {
-      background: linear-gradient(135deg, #fdecea, #fde8e8);
-      border: 2px solid #f5b7b1;
+      background: linear-gradient(135deg, #2d1515, #3d1a1a);
+      border: 1.5px solid #7f1d1d;
     }
 
     .result-card.safe {
-      background: linear-gradient(135deg, #eafaf1, #d5f5e3);
-      border: 2px solid #a9dfbf;
+      background: linear-gradient(135deg, #0d2d1f, #143d2a);
+      border: 1.5px solid #14532d;
     }
 
     .result-label {
-      font-size: 0.85rem;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
+      font-size: .82rem;
+      font-weight: 600;
+      margin-bottom: .4rem;
     }
 
     .result-label.danger {
-      color: #c0392b;
+      color: #fca5a5;
     }
 
     .result-label.safe {
-      color: #1e8449;
+      color: #6ee7b7;
     }
 
     .result-percent {
-      font-size: 3.5rem;
+      font-size: 3rem;
       font-weight: 700;
       line-height: 1;
-      margin-bottom: 0.3rem;
+      margin-bottom: .3rem;
     }
 
     .result-percent.danger {
-      color: #c0392b;
+      color: #ef4444;
     }
 
     .result-percent.safe {
-      color: #1e8449;
+      color: #10b981;
     }
 
     .result-sub {
-      font-size: 0.85rem;
-      color: #718096;
+      font-size: .8rem;
+      color: var(--text2);
     }
 
     .result-bar-wrap {
-      background: #eee;
+      background: rgba(255, 255, 255, .1);
       border-radius: 99px;
-      height: 10px;
-      margin: 1rem 0 0.3rem;
+      height: 8px;
+      margin: 1rem 0 .3rem;
       overflow: hidden;
     }
 
     .result-bar {
       height: 100%;
       border-radius: 99px;
-      transition: width 0.8s ease;
+      transition: width .8s ease;
     }
 
     .result-bar.danger {
-      background: #e74c3c;
+      background: #ef4444;
     }
 
     .result-bar.safe {
-      background: #27ae60;
+      background: #10b981;
     }
 
     .result-detail {
       display: flex;
       justify-content: space-between;
-      font-size: 0.8rem;
-      color: #718096;
+      font-size: .75rem;
+      color: var(--text2);
     }
 
     .tag-info {
       display: inline-block;
-      background: #e8f4fb;
-      color: #2980b9;
+      background: rgba(124, 92, 191, .2);
+      color: var(--accent);
       border-radius: 6px;
       padding: 2px 10px;
-      font-size: 0.8rem;
-      margin-top: 0.5rem;
+      font-size: .75rem;
+      margin: 2px;
     }
 
-    /* ─── Perturbation result extras ───────────────────────────────────── */
     .perturb-row {
       display: flex;
       align-items: center;
-      gap: 0.7rem;
+      gap: .7rem;
       margin-top: 1rem;
       flex-wrap: wrap;
       justify-content: center;
     }
 
-    /* Confidence badge */
     .conf-badge {
       display: inline-flex;
       align-items: center;
       gap: 5px;
       padding: 4px 12px;
       border-radius: 99px;
-      font-size: 0.78rem;
+      font-size: .75rem;
       font-weight: 600;
-      letter-spacing: 0.02em;
     }
 
     .conf-badge.high {
-      background: #d1fae5;
-      color: #065f46;
+      background: rgba(16, 185, 129, .2);
+      color: #6ee7b7;
     }
 
     .conf-badge.medium {
-      background: #fef3c7;
-      color: #92400e;
+      background: rgba(245, 158, 11, .2);
+      color: #fcd34d;
     }
 
     .conf-badge.low {
-      background: #fee2e2;
-      color: #991b1b;
+      background: rgba(239, 68, 68, .2);
+      color: #fca5a5;
     }
 
-    /* Stability meter */
     .stability-wrap {
       flex: 1;
       min-width: 160px;
@@ -321,22 +462,22 @@
     .stability-label {
       display: flex;
       justify-content: space-between;
-      font-size: 0.72rem;
-      color: #718096;
+      font-size: .7rem;
+      color: var(--text2);
       margin-bottom: 3px;
     }
 
     .stability-track {
-      background: #e2e8f0;
+      background: rgba(255, 255, 255, .1);
       border-radius: 99px;
-      height: 7px;
+      height: 6px;
       overflow: hidden;
     }
 
     .stability-fill {
       height: 100%;
       border-radius: 99px;
-      transition: width 0.8s ease;
+      transition: width .8s ease;
     }
 
     .stability-fill.low-std {
@@ -351,12 +492,11 @@
       background: #ef4444;
     }
 
-    /* Perturbation info chip */
     .perturb-chip {
-      font-size: 0.72rem;
-      color: #a0aec0;
+      font-size: .7rem;
+      color: var(--text2);
       cursor: help;
-      border-bottom: 1px dashed #a0aec0;
+      border-bottom: 1px dashed var(--text2);
       position: relative;
     }
 
@@ -367,8 +507,8 @@
       left: 50%;
       transform: translateX(-50%);
       background: #2d3748;
-      color: white;
-      font-size: 0.72rem;
+      color: #fff;
+      font-size: .7rem;
       padding: 5px 10px;
       border-radius: 6px;
       white-space: nowrap;
@@ -376,17 +516,131 @@
       z-index: 200;
     }
 
-    /* Searchable combobox */
+    /* SIDEBAR */
+    .sidebar {}
+
+    .sidebar-card {
+      background: var(--sidebar);
+      border-radius: 14px;
+      padding: 1.2rem;
+      border: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+
+    .sidebar-title {
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: .9rem;
+    }
+
+    .btn-action {
+      width: 100%;
+      padding: .65rem;
+      border-radius: 9px;
+      font-size: .82rem;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      margin-bottom: .5rem;
+      transition: opacity .2s;
+    }
+
+    .btn-purple {
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: #fff;
+    }
+
+    .btn-dark {
+      background: rgba(255, 255, 255, .08);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-action:hover {
+      opacity: .85;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .5rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: .8rem;
+    }
+
+    .status-row:last-child {
+      border-bottom: none;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot.green {
+      background: #10b981;
+    }
+
+    .dot.red {
+      background: #ef4444;
+    }
+
+    .dot.amber {
+      background: #f59e0b;
+    }
+
+    .status-name {
+      flex: 1;
+      margin-left: .5rem;
+      color: var(--text);
+    }
+
+    .status-val {
+      font-size: .72rem;
+      font-weight: 600;
+    }
+
+    .status-val.ok {
+      color: #10b981;
+    }
+
+    .status-val.err {
+      color: #ef4444;
+    }
+
+    .activity-item {
+      font-size: .78rem;
+      color: var(--text2);
+      padding: .4rem 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: .5rem;
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-time {
+      color: var(--text2);
+      white-space: nowrap;
+      font-size: .7rem;
+    }
+
+    /* COMBOBOX */
     .sc-wrap {
       position: relative;
     }
 
     .sc-wrap input[type=text] {
       width: 100%;
-      padding-right: 2.2rem;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a0aec0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 0.7rem center;
     }
 
     .sc-drop {
@@ -395,57 +649,65 @@
       top: calc(100% + 4px);
       left: 0;
       right: 0;
-      background: white;
-      border: 1.5px solid #2980b9;
+      background: var(--card);
+      border: 1.5px solid var(--accent);
       border-radius: 10px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
-      max-height: 240px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .3);
+      max-height: 200px;
       overflow-y: auto;
       z-index: 100;
     }
 
     .sc-opt {
-      padding: 0.6rem 0.9rem;
-      font-size: 0.9rem;
+      padding: .55rem .9rem;
+      font-size: .85rem;
       cursor: pointer;
-      color: #2d3748;
-      border-radius: 0;
-      transition: background 0.12s;
-    }
-
-    .sc-opt:first-child {
-      border-radius: 8px 8px 0 0;
-    }
-
-    .sc-opt:last-child {
-      border-radius: 0 0 8px 8px;
+      color: var(--text);
+      transition: background .12s;
     }
 
     .sc-opt:hover {
-      background: #ebf5fb;
+      background: rgba(124, 92, 191, .15);
     }
 
     .sc-opt mark {
-      background: #fef9c3;
-      color: #92400e;
+      background: rgba(124, 92, 191, .35);
+      color: var(--text);
       border-radius: 2px;
       padding: 0 1px;
     }
 
+    .sc-empty,
     .sc-more {
-      padding: 0.5rem 0.9rem;
-      font-size: 0.75rem;
-      color: #a0aec0;
-      border-top: 1px solid #e2e8f0;
-      cursor: default;
+      padding: .55rem .9rem;
+      font-size: .78rem;
+      color: var(--text2);
     }
 
-    .sc-empty {
-      padding: 0.6rem 0.9rem;
-      font-size: 0.85rem;
-      color: #718096;
-      cursor: default;
+    .sc-more {
+      border-top: 1px solid var(--border);
     }
+
+    /* ── Light mode: green overrides (darker, readable on white) ─── */
+    [data-theme="light"] .result-card.safe {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      border: 1.5px solid #86efac;
+    }
+
+    [data-theme="light"] .result-label.safe { color: #166534; }
+    [data-theme="light"] .result-percent.safe { color: #15803d; }
+    [data-theme="light"] .result-bar.safe { background: #16a34a; }
+    [data-theme="light"] .result-bar-wrap { background: rgba(0, 0, 0, .08); }
+    [data-theme="light"] .stability-track { background: rgba(0, 0, 0, .08); }
+    [data-theme="light"] .stability-fill.low-std { background: #16a34a; }
+
+    [data-theme="light"] .conf-badge.high {
+      background: rgba(22, 163, 74, .12);
+      color: #15803d;
+    }
+
+    [data-theme="light"] .dot.green { background: #16a34a; }
+    [data-theme="light"] .status-val.ok { color: #15803d; }
   </style>
 </head>
 
@@ -453,241 +715,223 @@
 
   <nav>
     <div class="nav-brand">🎓 ระบบประเมินความเสี่ยงการพ้นสภาพนักศึกษา</div>
-    <div class="nav-user">
-      <span>{{ user.name }}</span>
-      <a href="/logout">ออกจากระบบ</a>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="setTab(this,'dashboard')">Dashboard</button>
+    </div>
+    <div class="nav-right">
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">☀ Light</button>
+      <span class="nav-user">{{ user.name }}</span>
+      <a href="/logout" class="nav-logout">ออกจากระบบ</a>
     </div>
   </nav>
 
-  <main>
-    <h2>ระบบประเมินความเสี่ยงการพ้นสภาพนักศึกษา</h2>
+  <div class="page">
+    <div class="main-col">
 
-    {% if result %}
-    {% set cls = 'danger' if result.risk_percent >= 50 else 'safe' %}
-    {% set std_cls = 'low-std' if result.perturb_std < 5 else ('medium-std' if result.perturb_std < 12 else 'high-std' )
-      %} {% set std_bar=[result.perturb_std * 2, 100] | min %} <div class="result-card {{ cls }}">
-      <div class="result-label {{ cls }}">
-        {% if cls == 'danger' %}⚠ นักศึกษามีความเสี่ยงสูง{% else %}✓ นักศึกษาอยู่ในเกณฑ์ปลอดภัย{% endif %}
-      </div>
-      <div class="result-percent {{ cls }}">{{ result.risk_percent }}%</div>
-      <div class="result-sub">ความเสี่ยงพ้นสภาพนักศึกษา (เฉลี่ยจาก {{ result.n_perturbations + 1 }} การทำนาย)</div>
-      <div class="result-bar-wrap">
-        <div class="result-bar {{ cls }}" style="width: {{ result.risk_percent }}%"></div>
-      </div>
-      <div class="result-detail">
-        <span>เสี่ยงพ้นสภาพ {{ result.risk_percent }}%</span>
-        <span>โอกาสสำเร็จ {{ result.success_percent }}%</span>
-      </div>
 
-      {# ── Perturbation extras ───────────────────────────────────────── #}
-      <div class="perturb-row">
-        {# Confidence Badge #}
-        <span class="conf-badge {{ result.confidence_en }}" title="ความมั่นใจของโมเดล">
-          {% if result.confidence_en == 'high' %}🟢{% elif result.confidence_en == 'medium' %}🟡{% else %}🔴{% endif %}
-          ความมั่นใจ: {{ result.confidence }}
-        </span>
-
-        {# Stability meter #}
-        <div class="stability-wrap">
-          <div class="stability-label">
-            <span>ความเสถียรของผล</span>
-            <span>±{{ result.perturb_std }}%</span>
+      <!-- Result -->
+      {% if result %}
+      {% set cls = 'danger' if result.risk_percent >= 50 else 'safe' %}
+      {% set std_cls = 'low-std' if result.perturb_std < 5 else ('medium-std' if result.perturb_std < 12 else 'high-std'
+        ) %} {% set std_bar=[result.perturb_std * 2, 100] | min %} <div class="result-card {{ cls }}">
+        <div class="result-label {{ cls }}">
+          {% if cls == 'danger' %}⚠ นักศึกษามีความเสี่ยงสูง{% else %}✓ นักศึกษาอยู่ในเกณฑ์ปลอดภัย{% endif %}
+        </div>
+        <div class="result-percent {{ cls }}">{{ result.risk_percent }}%</div>
+        <div class="result-sub">ความเสี่ยงพ้นสภาพนักศึกษา (เฉลี่ยจาก {{ result.n_perturbations + 1 }} การทำนาย)</div>
+        <div class="result-bar-wrap">
+          <div class="result-bar {{ cls }}" style="width:{{ result.risk_percent }}%"></div>
+        </div>
+        <div class="result-detail">
+          <span>เสี่ยงพ้นสภาพ {{ result.risk_percent }}%</span>
+          <span>โอกาสสำเร็จ {{ result.success_percent }}%</span>
+        </div>
+        <div class="perturb-row">
+          <span class="conf-badge {{ result.confidence_en }}">
+            {% if result.confidence_en == 'high' %}🟢{% elif result.confidence_en == 'medium' %}🟡{% else %}🔴{% endif
+            %}
+            ความมั่นใจ: {{ result.confidence }}
+          </span>
+          <div class="stability-wrap">
+            <div class="stability-label"><span>ความเสถียรของผล</span><span>±{{ result.perturb_std }}%</span></div>
+            <div class="stability-track">
+              <div class="stability-fill {{ std_cls }}" style="width:{{ std_bar }}%"></div>
+            </div>
           </div>
-          <div class="stability-track">
-            <div class="stability-fill {{ std_cls }}" style="width: {{ std_bar }}%"></div>
+          <span class="perturb-chip"
+            data-tip="เฉลี่ยจาก {{ result.n_perturbations + 1 }} การทำนายที่มีการสุ่ม noise ที่ GPA">🔬 Perturbation
+            Smoothing</span>
+        </div>
+        <div style="margin-top:.8rem;">
+          <span class="tag-info">{{ form.school }}</span>
+          <span class="tag-info">GPA {{ form.gpa }}</span>
+          <span class="tag-info">เกรดปี 1/1: {{ form.grade_y1s1 }}</span>
+          <span class="tag-info">{{ form.degree }}</span>
+          <span class="tag-info">{{ form.admission }}</span>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Input Form -->
+    <div class="card">
+      <div class="card-title">กรอกข้อมูลนักศึกษา</div>
+      <form method="post" action="/predict">
+        <div class="grid">
+          <div class="field">
+            <label>คะแนนเฉลี่ยก่อนรับเข้า (GPA) <span>*</span></label>
+            <input type="number" name="gpa" min="0" max="4" step="0.01" placeholder="0.00 – 4.00"
+              value="{{ form.gpa if form else '' }}" required>
+            <span class="hint">กรอกค่าระหว่าง 0.00 – 4.00</span>
+          </div>
+          <div class="field">
+            <label>เกรดปีแรกเทอมแรก <span>*</span></label>
+            <input type="number" name="grade_y1s1" min="0" max="4" step="0.01" placeholder="0.00 – 4.00"
+              value="{{ form.grade_y1s1 if form else '' }}" required>
+            <span class="hint">เกรดเฉลี่ยสะสมปีที่ 1 เทอมที่ 1</span>
+          </div>
+          <div class="field">
+            <label>วิธีรับเข้า <span>*</span></label>
+            <select name="admission" required>
+              <option value="" disabled {% if not form %}selected{% endif %}>-- เลือกวิธีรับเข้า --</option>
+              <option value="โควตา" {% if form and form.admission=='โควตา' %}selected{% endif %}>โควตา</option>
+              <option value="สอบคัดเลือก" {% if form and form.admission=='สอบคัดเลือก' %}selected{% endif %}>สอบคัดเลือก
+              </option>
+              <option value="อื่นๆ" {% if form and form.admission=='อื่นๆ' %}selected{% endif %}>อื่นๆ</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>วุฒิการศึกษา <span>*</span></label>
+            <select name="degree" required>
+              <option value="" disabled {% if not form %}selected{% endif %}>-- เลือกวุฒิ --</option>
+              <option value="มัธยมศึกษาตอนปลาย (ม.6)" {% if form and form.degree=='มัธยมศึกษาตอนปลาย (ม.6)' %}selected{%
+                endif %}>มัธยมศึกษาตอนปลาย (ม.6)</option>
+              <option value="ปวช." {% if form and form.degree=='ปวช.' %}selected{% endif %}>ปวช.</option>
+              <option value="ปวส." {% if form and form.degree=='ปวส.' %}selected{% endif %}>ปวส.</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label>โรงเรียน / สถาบันที่จบมา <span>*</span></label>
+            <div class="sc-wrap" id="sc-wrap">
+              <input type="text" id="sc-search" autocomplete="off" placeholder="พิมพ์เพื่อค้นหาหรือเลือกสถาบัน..."
+                value="{{ form.school if form else '' }}">
+              <div class="sc-drop" id="sc-drop"></div>
+            </div>
+            <input type="hidden" id="sc-val" name="school" value="{{ form.school if form else '' }}">
+            <span class="hint">พิมพ์ชื่อสถาบันเพื่อค้นหา — ถ้าไม่พบในรายการ ระบบจะประเมินเป็นสถาบันเอกชน</span>
           </div>
         </div>
+        <button type="submit">ประเมินความเสี่ยง</button>
+      </form>
+    </div>
 
-        {# Info chip #}
-        <span class="perturb-chip"
-          data-tip="เฉลี่ยจาก {{ result.n_perturbations + 1 }} การทำนายที่มีการสุ่ม noise ที่ GPA เพื่อลดการแกว่ง">
-          🔬 Perturbation Smoothing
-        </span>
+    <p style="text-align:center;font-size:.72rem;color:var(--text2);margin-top:-1rem;">
+      ผลการประเมินนี้เป็นเพียงการพยากรณ์จาก AI เพื่อช่วยสนับสนุนการตัดสินใจของอาจารย์เท่านั้น
+    </p>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-title">Quick Actions</div>
+      <button class="btn-action btn-purple" onclick="location.reload()">🔄 Refresh Data</button>
+    </div>
+
+    <div class="sidebar-card">
+      <div class="sidebar-title">System Status</div>
+      <div class="status-row">
+        <div class="dot green"></div>
+        <span class="status-name">Database</span>
+        <span class="status-val ok">Online</span>
       </div>
-
-      <div style="margin-top:0.8rem;">
-        <span class="tag-info">{{ form.school }}</span>
-        <span class="tag-info">GPA {{ form.gpa }}</span>
-        <span class="tag-info">เกรดปี 1/1: {{ form.grade_y1s1 }}</span>
-        <span class="tag-info">{{ form.degree }}</span>
-        <span class="tag-info">{{ form.admission }}</span>
+      <div class="status-row">
+        <div class="dot green"></div>
+        <span class="status-name">ML Model</span>
+        <span class="status-val ok">Loaded</span>
       </div>
+    </div>
+
+    <div class="sidebar-card">
+      <div class="sidebar-title">Recent Activity</div>
+      <div class="activity-item">
+        <span>📊 ประเมินนักศึกษา</span>
+        <span class="activity-time">เมื่อกี้</span>
       </div>
-      {% endif %}
-
-      <div class="card">
-        <div class="card-title">กรอกข้อมูลนักศึกษา</div>
-        <form method="post" action="/predict">
-          <div class="grid">
-
-            <div class="field">
-              <label>คะแนนเฉลี่ยก่อนรับเข้า (GPA) <span>*</span></label>
-              <input type="number" name="gpa" min="0" max="4" step="0.01" placeholder="0.00 – 4.00"
-                value="{{ form.gpa if form else '' }}" required>
-              <span class="hint-text">กรอกค่าระหว่าง 0.00 – 4.00</span>
-            </div>
-
-            <div class="field">
-              <label>เกรดปีแรกเทอมแรก <span>*</span></label>
-              <input type="number" name="grade_y1s1" min="0" max="4" step="0.01" placeholder="0.00 – 4.00"
-                value="{{ form.grade_y1s1 if form else '' }}" required>
-              <span class="hint-text">เกรดเฉลี่ยสะสมปีที่ 1 เทอมที่ 1 (0.00 – 4.00)</span>
-            </div>
-
-            <div class="field">
-              <label>วิธีรับเข้า <span>*</span></label>
-              <select name="admission" required>
-                <option value="" disabled {% if not form %}selected{% endif %}>-- เลือกวิธีรับเข้า --</option>
-                <option value="โควตา" {% if form and form.admission=='โควตา' %}selected{% endif %}>โควตา</option>
-                <option value="สอบคัดเลือก" {% if form and form.admission=='สอบคัดเลือก' %}selected{% endif %}>
-                  สอบคัดเลือก
-                </option>
-                <option value="อื่นๆ" {% if form and form.admission=='อื่นๆ' %}selected{% endif %}>อื่นๆ</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label>วุฒิการศึกษา <span>*</span></label>
-              <select name="degree" required>
-                <option value="" disabled {% if not form %}selected{% endif %}>-- เลือกวุฒิ --</option>
-                <option value="มัธยมศึกษาตอนปลาย (ม.6)" {% if form and form.degree=='มัธยมศึกษาตอนปลาย (ม.6)'
-                  %}selected{% endif %}>มัธยมศึกษาตอนปลาย (ม.6)</option>
-                <option value="ปวช." {% if form and form.degree=='ปวช.' %}selected{% endif %}>ปวช.</option>
-                <option value="ปวส." {% if form and form.degree=='ปวส.' %}selected{% endif %}>ปวส.</option>
-              </select>
-            </div>
-
-            <div class="field full">
-              <label>โรงเรียน / สถาบันที่จบมา <span>*</span></label>
-
-              <div class="sc-wrap" id="sc-wrap">
-                <input type="text" id="sc-search" autocomplete="off" placeholder="พิมพ์เพื่อค้นหาหรือเลือกสถาบัน..."
-                  value="{{ form.school if form else '' }}">
-                <div class="sc-drop" id="sc-drop"></div>
-              </div>
-              <input type="hidden" id="sc-val" name="school" value="{{ form.school if form else '' }}">
-              <span class="hint-text">พิมพ์ชื่อสถาบันเพื่อค้นหา — ถ้าไม่พบในรายการ ระบบจะประเมินเป็นสถาบันเอกชน</span>
-            </div>
-
-          </div>
-          <button type="submit">ประเมินความเสี่ยง</button>
-        </form>
+      <div class="activity-item">
+        <span>🔑 เข้าสู่ระบบ</span>
+        <span class="activity-time">วันนี้</span>
       </div>
-
-      <p style="text-align:center; font-size:0.75rem; color:#a0aec0; margin-top:1rem;">
-        ผลการประเมินนี้เป็นเพียงการพยากรณ์จาก AI เพื่อช่วยสนับสนุนการตัดสินใจของอาจารย์เท่านั้น
-      </p>
-  </main>
+    </div>
+  </div>
+  </div>
 
   <script>
     (function () {
+      // ── Theme toggle ──
+      function applyTheme(t) {
+        document.documentElement.setAttribute('data-theme', t);
+        document.getElementById('theme-btn').textContent = t === 'dark' ? '☀ Light' : '🌙 Dark';
+        localStorage.setItem('theme', t);
+      }
+      window.toggleTheme = function () {
+        applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+      };
+      applyTheme(localStorage.getItem('theme') || 'dark');
+
+      // ── Tab click (visual only) ──
+      window.setTab = function (el) {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+      };
+
+      // ── Searchable combobox ──
       const SCHOOLS = {{ schools | tojson
     }};
-
     const searchEl = document.getElementById('sc-search');
     const dropEl = document.getElementById('sc-drop');
     const valEl = document.getElementById('sc-val');
     const wrapEl = document.getElementById('sc-wrap');
 
-    function esc(s) {
-      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
+    function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
-    // ดึง pool โรงเรียนตามวุฒิที่เลือก
     function getPool() {
-      const degree = document.querySelector('select[name="degree"]').value;
-      if (degree === 'มัธยมศึกษาตอนปลาย (ม.6)') {
-        return SCHOOLS.filter(s => !s.includes('วิทยาลัย'));
-      } else if (degree === 'ปวช.' || degree === 'ปวส.') {
-        return SCHOOLS.filter(s => s.includes('วิทยาลัย'));
-      }
+      const deg = document.querySelector('select[name="degree"]').value;
+      if (deg === 'มัธยมศึกษาตอนปลาย (ม.6)') return SCHOOLS.filter(s => !s.includes('วิทยาลัย'));
+      if (deg === 'ปวช.' || deg === 'ปวส.') return SCHOOLS.filter(s => s.includes('วิทยาลัย'));
       return SCHOOLS;
     }
 
     function render(q) {
-      const pool = getPool();
-      const lq = q.trim().toLowerCase();
-      const matches = lq
-        ? pool.filter(s => s.toLowerCase().includes(lq))
-        : pool;
-
+      const pool = getPool(); const lq = q.trim().toLowerCase();
+      const matches = lq ? pool.filter(s => s.toLowerCase().includes(lq)) : pool;
       dropEl.innerHTML = '';
-
       if (matches.length === 0) {
-        const d = document.createElement('div');
-        d.className = 'sc-empty';
+        const d = document.createElement('div'); d.className = 'sc-empty';
         d.textContent = `ไม่พบ "${q}" — ระบบจะใช้ชื่อนี้และประเมินเป็นสถาบันเอกชน`;
         dropEl.appendChild(d);
       } else {
         const slice = matches.slice(0, 80);
         slice.forEach(s => {
-          const d = document.createElement('div');
-          d.className = 'sc-opt';
-          if (lq) {
-            const i = s.toLowerCase().indexOf(lq);
-            d.innerHTML = esc(s.slice(0, i))
-              + '<mark>' + esc(s.slice(i, i + q.trim().length)) + '</mark>'
-              + esc(s.slice(i + q.trim().length));
-          } else {
-            d.textContent = s;
-          }
+          const d = document.createElement('div'); d.className = 'sc-opt';
+          if (lq) { const i = s.toLowerCase().indexOf(lq); d.innerHTML = esc(s.slice(0, i)) + '<mark>' + esc(s.slice(i, i + q.trim().length)) + '</mark>' + esc(s.slice(i + q.trim().length)); }
+          else { d.textContent = s; }
           d.onmousedown = (e) => { e.preventDefault(); pick(s); };
           dropEl.appendChild(d);
         });
-        if (matches.length > 80) {
-          const d = document.createElement('div');
-          d.className = 'sc-more';
-          d.textContent = `แสดง 80 จาก ${matches.length} รายการ — พิมพ์เพิ่มเติมเพื่อแคบลง`;
-          dropEl.appendChild(d);
-        }
+        if (matches.length > 80) { const d = document.createElement('div'); d.className = 'sc-more'; d.textContent = `แสดง 80 จาก ${matches.length} รายการ — พิมพ์เพิ่มเติมเพื่อแคบลง`; dropEl.appendChild(d); }
       }
-
       dropEl.style.display = 'block';
     }
 
-    function pick(name) {
-      searchEl.value = name;
-      valEl.value = name;
-      dropEl.style.display = 'none';
-      searchEl.style.borderColor = '';
-    }
+    function pick(name) { searchEl.value = name; valEl.value = name; dropEl.style.display = 'none'; searchEl.style.borderColor = ''; }
 
-    // เมื่อเปลี่ยนวุฒิ → ล้างโรงเรียนที่เลือกไว้ (อาจไม่ถูกประเภทแล้ว)
-    document.querySelector('select[name="degree"]').addEventListener('change', () => {
-      searchEl.value = '';
-      valEl.value = '';
-      searchEl.style.borderColor = '';
-      dropEl.style.display = 'none';
-    });
-
+    document.querySelector('select[name="degree"]').addEventListener('change', () => { searchEl.value = ''; valEl.value = ''; searchEl.style.borderColor = ''; dropEl.style.display = 'none'; });
     searchEl.addEventListener('focus', () => render(searchEl.value));
-
-    searchEl.addEventListener('input', () => {
-      valEl.value = searchEl.value.trim();
-      render(searchEl.value);
-    });
-
-    searchEl.addEventListener('blur', () => {
-      setTimeout(() => { dropEl.style.display = 'none'; }, 160);
-      if (searchEl.value.trim()) valEl.value = searchEl.value.trim();
-    });
-
-    searchEl.closest('form').addEventListener('submit', (e) => {
-      if (!searchEl.value.trim()) {
-        e.preventDefault();
-        searchEl.focus();
-        searchEl.style.borderColor = '#e74c3c';
-      } else {
-        valEl.value = searchEl.value.trim();
-      }
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!wrapEl.contains(e.target)) dropEl.style.display = 'none';
-    });
-    }) ();
+    searchEl.addEventListener('input', () => { valEl.value = searchEl.value.trim(); render(searchEl.value); });
+    searchEl.addEventListener('blur', () => { setTimeout(() => { dropEl.style.display = 'none'; }, 160); if (searchEl.value.trim()) valEl.value = searchEl.value.trim(); });
+    searchEl.closest('form').addEventListener('submit', (e) => { if (!searchEl.value.trim()) { e.preventDefault(); searchEl.focus(); searchEl.style.borderColor = '#ef4444'; } else { valEl.value = searchEl.value.trim(); } });
+    document.addEventListener('click', (e) => { if (!wrapEl.contains(e.target)) dropEl.style.display = 'none'; });
+}) ();
   </script>
-
 </body>
 
 </html>

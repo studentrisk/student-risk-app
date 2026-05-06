@@ -5,9 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>เข้าสู่ระบบ — ระบบประเมินความเสี่ยงการพ้นสภาพนักศึกษา</title>
-
-  <!-- 1. นำเข้าไฟล์ CSS ของ FirebaseUI เพื่อให้หน้าต่างสวยงาม -->
-  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     *,
@@ -21,76 +19,580 @@
     body {
       font-family: 'Sarabun', sans-serif;
       min-height: 100vh;
-      background: linear-gradient(135deg, #e8f4f8 0%, #d6eaf8 100%);
+      background: linear-gradient(135deg, #e8f4f8 0%, #c8dff0 50%, #d6eaf8 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 1rem;
+      position: relative;
+      overflow: hidden;
     }
 
-    .card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-      padding: 2.5rem 2rem;
+    /* Decorative background blobs */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -120px;
+      left: -120px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(124, 92, 191, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -100px;
+      right: -80px;
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle, rgba(41, 128, 185, 0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── Card ─────────────────────────────────────────────── */
+    .login-card {
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow:
+        0 8px 32px rgba(41, 128, 185, 0.12),
+        0 2px 8px rgba(0, 0, 0, 0.06);
+      padding: 2.8rem 2.4rem 2.4rem;
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
+      position: relative;
+      z-index: 1;
+      animation: slideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── Logo / Header ────────────────────────────────────── */
     .logo {
       text-align: center;
       margin-bottom: 2rem;
     }
 
     .logo-icon {
-      width: 64px;
-      height: 64px;
-      border-radius: 16px;
-      background: #2980b9;
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #2980b9 0%, #7c5cbf 100%);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
+      font-size: 32px;
       margin-bottom: 1rem;
+      box-shadow: 0 4px 16px rgba(124, 92, 191, 0.3);
     }
 
-    h1 {
-      font-size: 1.3rem;
+    .logo h1 {
+      font-size: 1.15rem;
       color: #1a3a4a;
-      font-weight: 600;
+      font-weight: 700;
+      line-height: 1.35;
     }
 
-    p.sub {
-      font-size: 0.85rem;
+    .logo p.sub {
+      font-size: 0.82rem;
+      color: #7f8c8d;
+      margin-top: 6px;
+    }
+
+    /* ── Step indicator ───────────────────────────────────── */
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 1.8rem;
+    }
+
+    .step-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      transition: all 0.3s ease;
+    }
+
+    .step-dot.active {
+      background: linear-gradient(135deg, #2980b9, #7c5cbf);
+      color: white;
+      box-shadow: 0 2px 8px rgba(124, 92, 191, 0.4);
+    }
+
+    .step-dot.done {
+      background: #27ae60;
+      color: white;
+    }
+
+    .step-dot.inactive {
+      background: #e8edf2;
+      color: #a0aec0;
+    }
+
+    .step-line {
+      width: 48px;
+      height: 2px;
+      background: #e8edf2;
+      transition: background 0.3s ease;
+    }
+
+    .step-line.done {
+      background: #27ae60;
+    }
+
+    /* ── Step label ───────────────────────────────────────── */
+    .step-label {
+      text-align: center;
+      margin-bottom: 1.4rem;
+    }
+
+    .step-label h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1a3a4a;
+    }
+
+    .step-label p {
+      font-size: 0.8rem;
       color: #7f8c8d;
       margin-top: 4px;
     }
+
+    /* ── Field ────────────────────────────────────────────── */
+    .field {
+      margin-bottom: 1.2rem;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 6px;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 1.5px solid #dce6ef;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      color: #1a3a4a;
+      background: #f8fbfd;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: #7c5cbf;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(124, 92, 191, 0.12);
+    }
+
+    .field input::placeholder {
+      color: #b0bec5;
+    }
+
+    /* ── Steps container ──────────────────────────────────── */
+    .step-panel {
+      display: none;
+      animation: fadeStep 0.3s ease both;
+    }
+
+    .step-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeStep {
+      from {
+        opacity: 0;
+        transform: translateX(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* ── Buttons ──────────────────────────────────────────── */
+    .btn-primary {
+      width: 100%;
+      padding: 0.9rem;
+      background: linear-gradient(135deg, #2980b9 0%, #7c5cbf 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 14px rgba(124, 92, 191, 0.35);
+      letter-spacing: 0.01em;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.92;
+      box-shadow: 0 6px 18px rgba(124, 92, 191, 0.45);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.985);
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      color: #7c5cbf;
+      font-size: 0.82rem;
+      font-family: inherit;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 0.6rem;
+      transition: opacity 0.2s;
+    }
+
+    .btn-back:hover {
+      opacity: 0.7;
+    }
+
+    /* ── Email display pill ───────────────────────────────── */
+    .email-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f0f6fb;
+      border: 1.5px solid #dce6ef;
+      border-radius: 10px;
+      padding: 0.6rem 0.9rem;
+      margin-bottom: 1.2rem;
+      font-size: 0.85rem;
+      color: #1a3a4a;
+      font-weight: 500;
+    }
+
+    .email-pill .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2980b9, #7c5cbf);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* ── Error message ────────────────────────────────────── */
+    .error-msg {
+      display: none;
+      background: #fdecea;
+      border: 1px solid #f5c6cb;
+      color: #c0392b;
+      border-radius: 10px;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.82rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .error-msg.show {
+      display: block;
+      animation: fadeStep 0.25s ease both;
+    }
+
+    .error-retry-btn {
+      display: none;
+      width: 100%;
+      margin-top: -.4rem;
+      margin-bottom: 1rem;
+      padding: .55rem;
+      background: none;
+      border: 1.5px solid #c0392b;
+      color: #c0392b;
+      border-radius: 10px;
+      font-size: .82rem;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+      animation: fadeStep 0.25s ease both;
+    }
+
+    .error-retry-btn:hover {
+      background: #fdecea;
+    }
+
+    /* ── Forgot password panel ───────────────────────────── */
+    .btn-forgot {
+      background: none;
+      border: none;
+      color: #7c5cbf;
+      font-size: 0.8rem;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: opacity 0.2s;
+    }
+
+    .btn-forgot:hover {
+      opacity: 0.7;
+    }
+
+    .fp-link-row {
+      display: flex;
+      justify-content: flex-start;
+      margin-bottom: 0.8rem;
+    }
+
+    .fp-desc {
+      font-size: 0.82rem;
+      color: #7f8c8d;
+      margin-bottom: 1rem;
+      line-height: 1.55;
+    }
+
+    .fp-email-box {
+      background: #f0f6fb;
+      border: 1.5px solid #dce6ef;
+      border-radius: 10px;
+      padding: 0.65rem 1rem;
+      font-size: 0.88rem;
+      color: #1a3a4a;
+      font-weight: 500;
+      margin-bottom: 1.2rem;
+      word-break: break-all;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    .btn-secondary {
+      flex: 1;
+      padding: 0.8rem;
+      background: none;
+      border: 1.5px solid #dce6ef;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      font-weight: 600;
+      color: #4a5568;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-secondary:hover {
+      border-color: #7c5cbf;
+      color: #7c5cbf;
+    }
+
+    .fp-success-wrap {
+      text-align: center;
+      padding: 1rem 0 0.5rem;
+    }
+
+    .fp-success-icon {
+      font-size: 2.8rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .fp-success-msg {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #1e8449;
+    }
+
+    .fp-success-sub {
+      font-size: 0.78rem;
+      color: #7f8c8d;
+      margin-top: 0.3rem;
+      line-height: 1.5;
+    }
+
+    /* ── Loading spinner ──────────────────────────────────── */
+    .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .btn-primary.loading .btn-text {
+      display: none;
+    }
+
+    .btn-primary.loading .spinner {
+      display: block;
+    }
+
+    /* ── Footer ───────────────────────────────────────────── */
+    .footer-note {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #a0aec0;
+      margin-top: 1.4rem;
+    }
+
+    /* ─────────────────── Firebase UI Override ─────────────── */
+    /* Hide the default FirebaseUI widget; we drive it ourselves */
+    #firebaseui-auth-container {
+      display: none !important;
+    }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 
 <body>
-  <div class="card">
+  <div class="login-card">
+
+    <!-- Header / Logo -->
     <div class="logo">
       <div class="logo-icon">🎓</div>
       <h1>ระบบประเมินความเสี่ยงการพ้นสภาพนักศึกษา</h1>
       <p class="sub">สำหรับอาจารย์ที่ปรึกษาเท่านั้น</p>
     </div>
 
-    <!-- 2. กล่องเปล่าๆ ที่เดี๋ยวเราจะให้ FirebaseUI มาเสกหน้าต่าง Login ใส่ตรงนี้ -->
-    <div id="firebaseui-auth-container"></div>
+    <!-- Step indicator -->
+    <div class="step-indicator" id="step-indicator">
+      <div class="step-dot active" id="dot-1">1</div>
+      <div class="step-line" id="line-1"></div>
+      <div class="step-dot inactive" id="dot-2">2</div>
+    </div>
 
+    <!-- Error message -->
+    <div class="error-msg" id="error-msg"></div>
+    <button class="error-retry-btn" id="error-retry-btn" onclick="goToStep1()">← ลองอีเมลอื่น</button>
+
+    <!-- ══ Step 1: Email ══ -->
+    <div class="step-panel active" id="step-1">
+      <div class="step-label">
+        <h2>ยืนยันอีเมล</h2>
+        <p>กรอกอีเมลของคุณเพื่อดำเนินการต่อ</p>
+      </div>
+
+      <div class="field">
+        <label for="email-input">อีเมล</label>
+        <input type="email" id="email-input" placeholder="teacher@university.ac.th" autocomplete="email" autofocus>
+      </div>
+
+      <button class="btn-primary" id="btn-next" onclick="goToStep2()">
+        <span class="btn-text">ถัดไป →</span>
+        <span class="spinner"></span>
+      </button>
+    </div>
+
+    <!-- ══ Step 2: Password ══ -->
+    <div class="step-panel" id="step-2">
+      <div class="step-label">
+        <h2>ใส่รหัสผ่าน</h2>
+        <p>กรอกรหัสผ่านสำหรับบัญชีนี้</p>
+      </div>
+
+      <button class="btn-back" onclick="goToStep1()">← เปลี่ยนอีเมล</button>
+
+      <div class="email-pill" id="email-pill">
+        <div class="avatar" id="email-avatar">?</div>
+        <span id="email-display">-</span>
+      </div>
+
+      <div class="field">
+        <label for="password-input">รหัสผ่าน</label>
+        <input type="password" id="password-input" placeholder="••••••••" autocomplete="current-password">
+      </div>
+
+      <div class="fp-link-row">
+        <button class="btn-forgot" onclick="showForgotPassword()">ลืมรหัสผ่าน?</button>
+      </div>
+
+      <button class="btn-primary" id="btn-signin" onclick="doSignIn()">
+        <span class="btn-text">เข้าสู่ระบบ</span>
+        <span class="spinner"></span>
+      </button>
+    </div>
+
+    <!-- ══ Forgot Password Panel ══ -->
+    <div class="step-panel" id="step-fp">
+      <div class="step-label">
+        <h2>รีเซ็ตรหัสผ่าน</h2>
+        <p>ระบบจะส่งลิงก์ตั้งรหัสผ่านใหม่ไปยังอีเมลของคุณ</p>
+      </div>
+
+      <!-- Normal state -->
+      <div id="fp-form">
+        <p class="fp-desc">ส่งคำแนะนำไปยังอีเมลนี้เพื่ออธิบายวิธีตั้งรหัสผ่านใหม่</p>
+        <div class="fp-email-box" id="fp-email-display">-</div>
+        <div class="btn-row">
+          <button class="btn-secondary" onclick="cancelForgotPassword()">ยกเลิก</button>
+          <button class="btn-primary" id="btn-send-reset" onclick="sendResetEmail()" style="flex:1.5">
+            <span class="btn-text">ส่งลิงก์</span>
+            <span class="spinner"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Success state -->
+      <div id="fp-success" style="display:none">
+        <div class="fp-success-wrap">
+          <div class="fp-success-icon">✉️</div>
+          <div class="fp-success-msg">ส่งลิงก์เรียบร้อยแล้ว!</div>
+          <div class="fp-success-sub">ตรวจสอบกล่องจดหมายของคุณ<br>และกดลิงก์เพื่อตั้งรหัสผ่านใหม่</div>
+        </div>
+        <button class="btn-primary" style="margin-top:1.2rem"
+          onclick="cancelForgotPassword()">กลับไปเข้าสู่ระบบ</button>
+      </div>
+    </div>
+
+    <p class="footer-note">ระบบนี้สงวนสิทธิ์เฉพาะบุคลากรที่ได้รับอนุญาต</p>
+
+    <!-- FirebaseUI anchor (hidden — we invoke auth directly) -->
+    <div id="firebaseui-auth-container"></div>
   </div>
 
-  <!-- 3. นำเข้าไฟล์ JavaScript ของ Firebase (แบบ Compat เพื่อให้ใช้กับ FirebaseUI ได้ง่าย) -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.js"></script>
 
   <script>
-    // ==========================================
-    // 🔑 4. นำกุญแจดอกที่ 1 (firebaseConfig) ของคุณมาวางทับตรงนี้
-    // ==========================================
+    // ── Firebase init ──────────────────────────────────────────────────
     const firebaseConfig = {
       apiKey: "AIzaSyBnmQ7tfc3stfCMfOAy-x56PWqRRoKo1uE",
       authDomain: "student-risk-auth.firebaseapp.com",
@@ -100,44 +602,187 @@
       appId: "1:985301039293:web:f00622747543ced8921fd4",
       measurementId: "G-WN1SL25ZQ7"
     };
-
-    // เริ่มต้นเชื่อมต่อ Firebase
     firebase.initializeApp(firebaseConfig);
 
-    // สร้างตัวแปรสำหรับควบคุมหน้าต่าง UI
-    var ui = new firebaseui.auth.AuthUI(firebase.auth());
+    // ── Helper: show / hide error ──────────────────────────────────────
+    function showError(msg, showRetry) {
+      const el = document.getElementById('error-msg');
+      el.textContent = msg;
+      el.classList.add('show');
+      document.getElementById('error-retry-btn').style.display = showRetry ? 'block' : 'none';
+    }
+    function clearError() {
+      const el = document.getElementById('error-msg');
+      el.textContent = '';
+      el.classList.remove('show');
+      document.getElementById('error-retry-btn').style.display = 'none';
+    }
 
-    // ตั้งค่าหน้าต่าง Login
-    var uiConfig = {
-      callbacks: {
-        // เมื่อล็อกอินสำเร็จ ให้ทำอะไรต่อ?
-        signInSuccessWithAuthResult: function (authResult, redirectUrl) {
-          // ขอ Token (บัตรผ่าน) จาก Firebase
-          authResult.user.getIdToken().then(function (token) {
-            // เอา Token ยัดใส่ Cookie ให้ FastAPI มองเห็น
-            document.cookie = "session=" + token + "; path=/; max-age=3600";
-            // สั่งเปลี่ยนหน้าไปที่ Dashboard
-            window.location.href = "/dashboard";
-          });
-          // คืนค่า false เพื่อไม่ให้ UI มัน redirect เองมั่วๆ เราจะจัดการ redirect เองด้านบน
-          return false;
-        }
-      },
-      // เลือกวิธีการล็อกอิน (เราใช้แค่ Email)
-      signInOptions: [
-        {
-          provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-          requireDisplayName: false, // ไม่ต้องถามชื่อ
-          disableSignUp: {
-            status: true, // 🌟 ล็อกไม่ให้มีปุ่มสมัครสมาชิกใหม่ (ป้องกันคนนอก)
-            helpLink: "mailto:admin@your-school.ac.th" // ถ้าใครอยากขอรหัส ให้คลิกเมล์นี้ (แก้เมล์ได้)
+    // ── ไม่พบบัญชี: แสดง error แล้วตีกลับ step 1 ────────────────────────
+    function goToStep1NotFound() {
+      showError('ไม่พบบัญชีอีเมลนี้ในระบบ — กรุณาตรวจสอบและกรอกอีเมลใหม่', true);
+      setTimeout(function () {
+        document.getElementById('step-1').classList.add('active');
+        document.getElementById('step-2').classList.remove('active');
+        document.getElementById('dot-1').className = 'step-dot active';
+        document.getElementById('dot-1').textContent = '1';
+        document.getElementById('dot-2').className = 'step-dot inactive';
+        document.getElementById('line-1').className = 'step-line';
+        document.getElementById('password-input').value = '';
+        const emailInput = document.getElementById('email-input');
+        emailInput.style.borderColor = '#ef4444';
+        emailInput.focus();
+        emailInput.select();
+      }, 1800);
+    }
+
+    // ── Helper: loading state ──────────────────────────────────────────
+    function setLoading(btnId, on) {
+      document.getElementById(btnId).classList.toggle('loading', on);
+    }
+
+    // ── Step navigation ────────────────────────────────────────────────
+    function goToStep1() {
+      clearError();
+      document.getElementById('step-1').classList.add('active');
+      document.getElementById('step-2').classList.remove('active');
+
+      // Reset indicators
+      document.getElementById('dot-1').className = 'step-dot active';
+      document.getElementById('dot-1').textContent = '1';
+      document.getElementById('dot-2').className = 'step-dot inactive';
+      document.getElementById('line-1').className = 'step-line';
+
+      document.getElementById('password-input').value = '';
+      document.getElementById('email-input').style.borderColor = '';
+      document.getElementById('email-input').focus();
+    }
+
+    function goToStep2() {
+      clearError();
+      const email = document.getElementById('email-input').value.trim();
+
+      if (!email) {
+        showError('กรุณากรอกอีเมลของคุณ');
+        document.getElementById('email-input').focus();
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showError('รูปแบบอีเมลไม่ถูกต้อง');
+        document.getElementById('email-input').focus();
+        return;
+      }
+
+      // Populate step-2 email display
+      document.getElementById('email-display').textContent = email;
+      const initial = email[0].toUpperCase();
+      document.getElementById('email-avatar').textContent = initial;
+
+      // Switch panels
+      document.getElementById('step-1').classList.remove('active');
+      document.getElementById('step-2').classList.add('active');
+
+      // Update indicators
+      document.getElementById('dot-1').className = 'step-dot done';
+      document.getElementById('dot-1').textContent = '✓';
+      document.getElementById('line-1').className = 'step-line done';
+      document.getElementById('dot-2').className = 'step-dot active';
+
+      setTimeout(() => document.getElementById('password-input').focus(), 50);
+    }
+
+    // ── Sign In (Firebase Email/Password) ──────────────────────────────
+    function doSignIn() {
+      clearError();
+      const email = document.getElementById('email-input').value.trim();
+      const password = document.getElementById('password-input').value;
+
+      if (!password) {
+        showError('กรุณากรอกรหัสผ่าน');
+        document.getElementById('password-input').focus();
+        return;
+      }
+
+      setLoading('btn-signin', true);
+
+      firebase.auth()
+        .signInWithEmailAndPassword(email, password)
+        .then(function (cred) {
+          return cred.user.getIdToken();
+        })
+        .then(function (token) {
+          document.cookie = 'session=' + token + '; path=/; max-age=3600';
+          window.location.href = '/dashboard';
+        })
+        .catch(function (err) {
+          setLoading('btn-signin', false);
+          const code = err.code || '';
+          if (code === 'auth/wrong-password') {
+            showError('รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่');
+          } else if (code === 'auth/user-not-found' || code === 'auth/invalid-email') {
+            // อีเมลไม่มีในระบบ → ตีกลับ step 1
+            goToStep1NotFound();
+          } else if (code === 'auth/invalid-credential') {
+            // Firebase v10 รวม user-not-found + wrong-password ไว้ใน code เดียว
+            showError('อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบ', true);
+          } else if (code === 'auth/too-many-requests') {
+            showError('ลองเข้าสู่ระบบบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่');
+          } else {
+            showError('เกิดข้อผิดพลาด: ' + err.message);
           }
-        }
-      ],
-    };
+        });
+    }
 
-    // สั่งให้หน้าต่าง UI ปรากฏตัวขึ้นมาในกล่อง <div id="firebaseui-auth-container">
-    ui.start('#firebaseui-auth-container', uiConfig);
+    // ── Forgot password ────────────────────────────────────────────────
+    function showForgotPassword() {
+      clearError();
+      const email = document.getElementById('email-input').value.trim();
+      document.getElementById('fp-email-display').textContent = email || '(ไม่ได้กรอกอีเมล)';
+      document.getElementById('fp-form').style.display = '';
+      document.getElementById('fp-success').style.display = 'none';
+      document.getElementById('step-2').classList.remove('active');
+      document.getElementById('step-fp').classList.add('active');
+    }
+
+    function cancelForgotPassword() {
+      clearError();
+      document.getElementById('step-fp').classList.remove('active');
+      document.getElementById('step-2').classList.add('active');
+      setTimeout(function () { document.getElementById('password-input').focus(); }, 50);
+    }
+
+    function sendResetEmail() {
+      clearError();
+      const email = document.getElementById('email-input').value.trim();
+      if (!email) {
+        showError('ไม่พบอีเมล กรุณากลับไปกรอกอีเมลใหม่');
+        return;
+      }
+      document.getElementById('btn-send-reset').classList.add('loading');
+      firebase.auth().sendPasswordResetEmail(email)
+        .then(function () {
+          document.getElementById('btn-send-reset').classList.remove('loading');
+          document.getElementById('fp-form').style.display = 'none';
+          document.getElementById('fp-success').style.display = '';
+        })
+        .catch(function (err) {
+          document.getElementById('btn-send-reset').classList.remove('loading');
+          const code = err.code || '';
+          if (code === 'auth/user-not-found' || code === 'auth/invalid-email') {
+            showError('ไม่พบบัญชีอีเมลนี้ในระบบ กรุณาตรวจสอบอีเมลอีกครั้ง');
+          } else {
+            showError('เกิดข้อผิดพลาด: ' + err.message);
+          }
+        });
+    }
+
+    // ── Keyboard shortcuts ─────────────────────────────────────────────
+    document.getElementById('email-input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') goToStep2();
+    });
+    document.getElementById('password-input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') doSignIn();
+    });
   </script>
 </body>
 
