@@ -708,6 +708,32 @@
 
     [data-theme="light"] .dot.green { background: #16a34a; }
     [data-theme="light"] .status-val.ok { color: #15803d; }
+
+    /* ── Light mode: red/danger overrides (light bg, readable on white) ─── */
+    [data-theme="light"] .result-card.danger {
+      background: linear-gradient(135deg, #fff5f5, #fee2e2);
+      border: 1.5px solid #fca5a5;
+    }
+
+    [data-theme="light"] .result-label.danger { color: #991b1b; }
+    [data-theme="light"] .result-percent.danger { color: #dc2626; }
+    [data-theme="light"] .result-bar.danger { background: #dc2626; }
+
+    [data-theme="light"] .conf-badge.low {
+      background: rgba(220, 38, 38, .12);
+      color: #991b1b;
+    }
+
+    [data-theme="light"] .conf-badge.medium {
+      background: rgba(245, 158, 11, .15);
+      color: #92400e;
+    }
+
+    [data-theme="light"] .stability-fill.medium-std { background: #d97706; }
+    [data-theme="light"] .stability-fill.high-std { background: #dc2626; }
+
+    [data-theme="light"] .dot.red { background: #dc2626; }
+    [data-theme="light"] .status-val.err { color: #dc2626; }
   </style>
 </head>
 
