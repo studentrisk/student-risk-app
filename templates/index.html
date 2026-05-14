@@ -1,13 +1,4 @@
 <!DOCTYPE html>
-<!-- ============================================================
-     index.html — หน้า Dashboard หลัก (หน้าประเมินความเสี่ยง)
-     หน้าที่ : ให้อาจารย์กรอกข้อมูลนักศึกษา → กด "ประเมิน" → แสดงผล
-     ทำงานร่วมกับ :
-       - main.py  → route GET /dashboard (แสดงหน้านี้)
-                    route POST /predict (รับฟอร์มแล้วส่ง result กลับมา)
-       - model_loader.py → คำนวณ result ที่แสดงใน Result Card
-     data-theme="dark" : ธีมเริ่มต้นเป็น dark mode (สลับได้ด้วยปุ่ม ☀ Light)
-     ============================================================ -->
 <html lang="th" data-theme="dark">
 
 <head>
@@ -16,17 +7,6 @@
   <title>Dashboard — ระบบประเมินความเสี่ยงการพ้นสภาพนักศึกษา</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* ── CSS Custom Properties (ตัวแปรสี) สำหรับ Dark Mode (ค่าเริ่มต้น) ──
-       --bg          : สีพื้นหลังหน้าเว็บ
-       --card        : สีพื้นหลังกล่อง card
-       --accent      : สีม่วง (ปุ่ม, หัวข้อ)
-       --accent2     : สีน้ำเงิน (gradient ปุ่ม submit)
-       --text        : สีข้อความหลัก
-       --text2       : สีข้อความรอง (hint, label)
-       --border      : สีเส้นขอบ
-       --input       : สีพื้นหลัง input
-       --input-border: สีขอบ input
-       --sidebar     : สีพื้นหลัง sidebar ขวา ──────────────────────── */
     :root {
       --bg: #0f1229;
       --card: #1a1f3c;
@@ -41,9 +21,6 @@
       --sidebar: #1a1f3c;
     }
 
-    /* ── CSS Custom Properties สำหรับ Light Mode ──
-       ค่าพวกนี้จะ override ค่า :root เมื่อ <html data-theme="light">
-       JavaScript ฟังก์ชัน toggleTheme() ใน <script> สลับ attribute นี้ ── */
     [data-theme="light"] {
       --bg: #e8f4f8;
       --card: #fff;
@@ -802,12 +779,6 @@
 
 <body>
 
-  <!-- ── แถบ Navigation ด้านบน ──────────────────────────────────────────
-       nav-brand  : ชื่อระบบ
-       nav-tabs   : แถบ tab (ปัจจุบันมีแค่ Dashboard)
-       theme-btn  : ปุ่มสลับ Dark/Light mode → เรียก toggleTheme() ใน <script>
-       user.name  : ชื่อ/อีเมลจาก Firebase ที่ main.py ส่งมาใน context
-       nav-logout : ลิงก์ไป /logout เพื่อลบ Cookie session ── -->
   <nav>
     <div class="nav-brand">🎓 ระบบประเมินความเสี่ยงการพ้นสภาพนักศึกษา</div>
     <div class="nav-tabs">
@@ -824,25 +795,7 @@
     <div class="main-col">
 
 
-      <!-- ── Result Card: แสดงผลพยากรณ์ความเสี่ยง ────────────────────────
-           แสดงเฉพาะเมื่อ main.py ส่ง context "result" มา (หลังกด submit)
-           Jinja2: {% if result %} ตรวจว่ามีผลหรือไม่
-
-           ตัวแปร Jinja2 ที่สำคัญ:
-           cls         : 'danger' ถ้า risk >= 50%, 'safe' ถ้าน้อยกว่า
-                         ใช้เป็น CSS class ควบคุมสีแดง/เขียว
-           std_cls     : 'low-std'/'medium-std'/'high-std' ตามความเสถียร
-                         ใช้กำหนดสี progress bar ความเสถียร
-           std_bar     : ความกว้าง progress bar ความเสถียร (%) สูงสุด 100
-
-           ข้อมูลจาก result dict (มาจาก model_loader.py):
-           result.risk_percent    : ความเสี่ยงพ้นสภาพ (%)
-           result.success_percent : โอกาสสำเร็จ (%)
-           result.confidence      : ความมั่นใจ (สูง/ปานกลาง/ต่ำ)
-           result.confidence_en   : ความมั่นใจ (high/medium/low) → CSS class
-           result.perturb_std     : ความเสถียรของผล ± (%)
-           result.n_perturbations : จำนวนรอบ Perturbation (30)
-           ──────────────────────────────────────────────────────────────── -->
+      <!-- Result -->
       {% if result %}
       {% set cls = 'danger' if result.risk_percent >= 50 else 'safe' %}
       {% set std_cls = 'low-std' if result.perturb_std < 5 else ('medium-std' if result.perturb_std < 12 else 'high-std'
@@ -885,13 +838,7 @@
     </div>
     {% endif %}
 
-    <!-- ── ฟอร์มกรอกข้อมูลนักศึกษา ────────────────────────────────────
-         method="post" action="/predict" → ส่งไป route POST /predict ใน main.py
-         ค่าใน value="{{ form.xxx }}" : Jinja2 pre-fill ค่าที่กรอกก่อนหน้า
-         (main.py ส่ง context "form" กลับมาหลัง submit เพื่อไม่ให้ข้อมูลล้าง)
-         sc-val (hidden input) : เก็บชื่อโรงเรียนที่เลือกจาก combobox
-                                 ส่งไปพร้อมฟอร์มในชื่อ field "school"
-         ──────────────────────────────────────────────────────────────── -->
+    <!-- Input Form -->
     <div class="card">
       <div class="card-title">กรอกข้อมูลนักศึกษา</div>
       <form method="post" action="/predict">
@@ -948,11 +895,7 @@
     </p>
   </div>
 
-  <!-- ── Sidebar ขวามือ ───────────────────────────────────────────────
-       Quick Actions  : ปุ่ม Refresh (reload หน้า)
-       System Status  : แสดงสถานะ Database และ ML Model (static)
-       Recent Activity: กิจกรรมล่าสุด (static)
-       ──────────────────────────────────────────────────────────────── -->
+  <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-card">
       <div class="sidebar-title">Quick Actions</div>
@@ -989,49 +932,33 @@
 
   <script>
     (function () {
-      // ── Theme Toggle ──────────────────────────────────────────────────
-      // applyTheme(t): เปลี่ยน data-theme บน <html> และบันทึกใน localStorage
-      //   t = 'dark' หรือ 'light'
-      //   localStorage: เก็บค่าธีมไว้ในเบราว์เซอร์ ไม่หายเมื่อรีเฟรช
+      // ── Theme toggle ──
       function applyTheme(t) {
         document.documentElement.setAttribute('data-theme', t);
         document.getElementById('theme-btn').textContent = t === 'dark' ? '☀ Light' : '🌙 Dark';
-        localStorage.setItem('theme', t);  // จำธีมไว้ใน browser
+        localStorage.setItem('theme', t);
       }
-      // toggleTheme(): เรียกเมื่อกดปุ่ม ☀/🌙 ใน nav
       window.toggleTheme = function () {
         applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
       };
-      applyTheme(localStorage.getItem('theme') || 'dark');  // โหลดธีมที่บันทึกไว้ (default: dark)
+      applyTheme(localStorage.getItem('theme') || 'dark');
 
-      // ── Tab Click (visual only — ไม่ได้เปลี่ยนหน้า) ──────────────────
+      // ── Tab click (visual only) ──
       window.setTab = function (el) {
         document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
         el.classList.add('active');
       };
 
-      // ── Searchable Combobox: ช่องค้นหาโรงเรียน ───────────────────────
-      // SCHOOLS: array รายชื่อโรงเรียนทั้งหมด
-      //          Jinja2 {{ schools | tojson }} แปลง Python list → JavaScript array
-      //          ข้อมูลมาจาก model_loader.get_school_list() ผ่าน main.py
+      // ── Searchable combobox ──
       const SCHOOLS = {{ schools | tojson
     }};
-    // searchEl : input ช่องพิมพ์ค้นหา (#sc-search)
-    // dropEl   : กล่อง dropdown รายชื่อที่กรอง (#sc-drop)
-    // valEl    : hidden input ที่เก็บค่าจริงที่จะส่งไปฟอร์ม (#sc-val name="school")
-    // wrapEl   : div ห่อทั้งหมด ใช้ detect click outside
     const searchEl = document.getElementById('sc-search');
     const dropEl = document.getElementById('sc-drop');
     const valEl = document.getElementById('sc-val');
     const wrapEl = document.getElementById('sc-wrap');
 
-    // esc(): แปลง < > & ใน string เพื่อป้องกัน XSS เวลาแสดงใน innerHTML
     function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
-    // getPool(): กรอง SCHOOLS ตามวุฒิที่เลือก
-    //   ม.6  → แสดงเฉพาะโรงเรียน (ไม่มีคำว่า "วิทยาลัย")
-    //   ปวช./ปวส. → แสดงเฉพาะวิทยาลัย (มีคำว่า "วิทยาลัย")
-    //   ยังไม่เลือก → แสดงทั้งหมด
     function getPool() {
       const deg = document.querySelector('select[name="degree"]').value;
       if (deg === 'มัธยมศึกษาตอนปลาย (ม.6)') return SCHOOLS.filter(s => !s.includes('วิทยาลัย'));
@@ -1039,11 +966,6 @@
       return SCHOOLS;
     }
 
-    // render(q): แสดง dropdown รายชื่อที่ตรงกับคำค้นหา q
-    //   pool    : รายการโรงเรียนที่กรองตามวุฒิแล้ว
-    //   lq      : คำค้นหาที่ lowercase แล้ว (เพื่อ case-insensitive search)
-    //   matches : รายการที่ตรงกับ q (สูงสุด 80 รายการ)
-    //   <mark>  : highlight ส่วนที่ตรงกับคำค้นหา
     function render(q) {
       const pool = getPool(); const lq = q.trim().toLowerCase();
       const matches = lq ? pool.filter(s => s.toLowerCase().includes(lq)) : pool;
@@ -1066,7 +988,6 @@
       dropEl.style.display = 'block';
     }
 
-    // pick(name): เมื่อคลิกเลือกโรงเรียน → ใส่ชื่อใน searchEl และ valEl แล้วปิด dropdown
     function pick(name) { searchEl.value = name; valEl.value = name; dropEl.style.display = 'none'; searchEl.style.borderColor = ''; }
 
     document.querySelector('select[name="degree"]').addEventListener('change', () => { searchEl.value = ''; valEl.value = ''; searchEl.style.borderColor = ''; dropEl.style.display = 'none'; });

@@ -1,22 +1,10 @@
 <!DOCTYPE html>
-<!-- ============================================================
-     login.html — หน้าเข้าสู่ระบบ (Login Page)
-     หน้าที่ : แสดงฟอร์มให้อาจารย์ login ด้วย Email + Password
-     ทำงานร่วมกับ :
-       - main.py  → route GET "/" ส่ง response เป็นไฟล์นี้
-       - Firebase Authentication (cloud) → ตรวจสอบ email/password
-     ขั้นตอนการทำงาน:
-       Step 1: กรอก Email → ตรวจสอบรูปแบบ
-       Step 2: กรอก Password → Firebase ยืนยัน → บันทึก Cookie "session"
-       หาก login สำเร็จ: redirect ไป /dashboard
-     ============================================================ -->
 <html lang="th">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>เข้าสู่ระบบ — ระบบประเมินความเสี่ยงการพ้นสภาพนักศึกษา</title>
-  <!-- โหลดฟอนต์ Sarabun จาก Google Fonts รองรับภาษาไทย -->
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
@@ -494,37 +482,27 @@
 </head>
 
 <body>
-  <!-- login-card: กล่องกระดาษขาวตรงกลางหน้าจอ ห่อ content ทั้งหมด -->
   <div class="login-card">
 
-    <!-- ── ส่วนหัว: โลโก้และชื่อระบบ ── -->
+    <!-- Header / Logo -->
     <div class="logo">
       <div class="logo-icon">🎓</div>
       <h1>ระบบประเมินความเสี่ยงการพ้นสภาพนักศึกษา</h1>
       <p class="sub">สำหรับอาจารย์ที่ปรึกษาเท่านั้น</p>
     </div>
 
-    <!-- ── Step Indicator: แถบแสดงขั้นตอน (Step 1 → Step 2) ──
-         dot-1: วงกลมขั้นตอนที่ 1 (active=กำลังทำ, done=เสร็จแล้ว)
-         line-1: เส้นเชื่อมระหว่าง dot (เปลี่ยนสีเมื่อ step 1 เสร็จ)
-         dot-2: วงกลมขั้นตอนที่ 2
-         ควบคุมโดย JavaScript ฟังก์ชัน goToStep1() / goToStep2() -->
+    <!-- Step indicator -->
     <div class="step-indicator" id="step-indicator">
       <div class="step-dot active" id="dot-1">1</div>
       <div class="step-line" id="line-1"></div>
       <div class="step-dot inactive" id="dot-2">2</div>
     </div>
 
-    <!-- ── กล่องแสดงข้อผิดพลาด (ซ่อนอยู่ก่อน แสดงเมื่อมี error) ──
-         error-msg: ข้อความ error เช่น "รหัสผ่านไม่ถูกต้อง"
-         error-retry-btn: ปุ่มกลับไป Step 1 แสดงเมื่ออีเมลไม่พบในระบบ -->
+    <!-- Error message -->
     <div class="error-msg" id="error-msg"></div>
     <button class="error-retry-btn" id="error-retry-btn" onclick="goToStep1()">← ลองอีเมลอื่น</button>
 
-    <!-- ══ Step 1: กรอกอีเมล ══
-         step-panel.active = แสดงผล, ไม่มี active = ซ่อน
-         เมื่อกด "ถัดไป" → goToStep2() ตรวจรูปแบบ email ก่อน
-         ถ้าผ่าน → ซ่อน step-1, แสดง step-2 -->
+    <!-- ══ Step 1: Email ══ -->
     <div class="step-panel active" id="step-1">
       <div class="step-label">
         <h2>ยืนยันอีเมล</h2>
@@ -533,60 +511,45 @@
 
       <div class="field">
         <label for="email-input">อีเมล</label>
-        <!-- email-input: ช่องกรอก email, autofocus = cursor อยู่ที่นี่ทันทีที่เปิดหน้า -->
         <input type="email" id="email-input" placeholder="teacher@university.ac.th" autocomplete="email" autofocus>
       </div>
 
-      <!-- btn-next: ปุ่มถัดไป → เรียก goToStep2()
-           .spinner: วงกลมหมุน แสดงขณะรอ (ซ่อนด้วย CSS ปกติ) -->
       <button class="btn-primary" id="btn-next" onclick="goToStep2()">
         <span class="btn-text">ถัดไป →</span>
         <span class="spinner"></span>
       </button>
     </div>
 
-    <!-- ══ Step 2: กรอกรหัสผ่าน ══
-         ซ่อนตั้งต้น แสดงเมื่อผ่าน Step 1
-         email-pill: แสดง email ที่กรอกมาจาก Step 1 (ยืนยันตัวตน)
-         email-avatar: ตัวอักษรแรกของ email (เช่น T สำหรับ teacher@...) -->
+    <!-- ══ Step 2: Password ══ -->
     <div class="step-panel" id="step-2">
       <div class="step-label">
         <h2>ใส่รหัสผ่าน</h2>
         <p>กรอกรหัสผ่านสำหรับบัญชีนี้</p>
       </div>
 
-      <!-- ปุ่มกลับไปแก้ email ใน Step 1 -->
       <button class="btn-back" onclick="goToStep1()">← เปลี่ยนอีเมล</button>
 
-      <!-- แสดง email ที่กรอกไว้ เพื่อยืนยันว่า login บัญชีถูกต้อง -->
       <div class="email-pill" id="email-pill">
-        <div class="avatar" id="email-avatar">?</div>  <!-- อักษรย่อ email -->
-        <span id="email-display">-</span>              <!-- ข้อความ email เต็ม -->
+        <div class="avatar" id="email-avatar">?</div>
+        <span id="email-display">-</span>
       </div>
 
       <div class="field">
         <label for="password-input">รหัสผ่าน</label>
-        <!-- password-input: ช่องกรอกรหัสผ่าน (แสดงเป็น ••••) -->
         <input type="password" id="password-input" placeholder="••••••••" autocomplete="current-password">
       </div>
 
-      <!-- ลิงก์ "ลืมรหัสผ่าน" → เปิด step-fp (Forgot Password panel) -->
       <div class="fp-link-row">
         <button class="btn-forgot" onclick="showForgotPassword()">ลืมรหัสผ่าน?</button>
       </div>
 
-      <!-- btn-signin: ส่ง email+password ให้ Firebase ตรวจสอบ → doSignIn() -->
       <button class="btn-primary" id="btn-signin" onclick="doSignIn()">
         <span class="btn-text">เข้าสู่ระบบ</span>
         <span class="spinner"></span>
       </button>
     </div>
 
-    <!-- ══ Forgot Password Panel: หน้าย่อยรีเซ็ตรหัสผ่าน ══
-         แสดงเมื่อกด "ลืมรหัสผ่าน?" → showForgotPassword()
-         Firebase จะส่ง link รีเซ็ตรหัสผ่านไปยัง email ผู้ใช้
-         fp-form: ฟอร์มยืนยันก่อนส่ง link
-         fp-success: ข้อความสำเร็จหลังส่ง link เรียบร้อย -->
+    <!-- ══ Forgot Password Panel ══ -->
     <div class="step-panel" id="step-fp">
       <div class="step-label">
         <h2>รีเซ็ตรหัสผ่าน</h2>
@@ -624,18 +587,12 @@
     <div id="firebaseui-auth-container"></div>
   </div>
 
-  <!-- ── โหลด Firebase JavaScript SDK จาก Google CDN ──
-       firebase-app-compat  : ส่วนหลักของ Firebase
-       firebase-auth-compat : ระบบ Authentication (login/logout/reset) -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
   <script>
-    // ── เริ่มต้น Firebase ด้วย config ของโปรเจกต์ ──────────────────────
-    // firebaseConfig: ข้อมูลเชื่อมต่อ Firebase project "student-risk-auth"
-    //   apiKey        : กุญแจ API (ไม่ใช่ private key — ปลอดภัยที่จะอยู่ใน client)
-    //   authDomain    : domain ที่ Firebase ใช้ handle authentication
-    //   projectId     : ชื่อ project บน Firebase console
+    // ── Firebase init ──────────────────────────────────────────────────
     const firebaseConfig = {
       apiKey: "AIzaSyBnmQ7tfc3stfCMfOAy-x56PWqRRoKo1uE",
       authDomain: "student-risk-auth.firebaseapp.com",
@@ -645,19 +602,15 @@
       appId: "1:985301039293:web:f00622747543ced8921fd4",
       measurementId: "G-WN1SL25ZQ7"
     };
-    firebase.initializeApp(firebaseConfig);  // เชื่อมต่อ Firebase ด้วย config ข้างบน
+    firebase.initializeApp(firebaseConfig);
 
-    // ── Helper: แสดง/ซ่อนกล่อง Error ─────────────────────────────────
-    // showError(msg, showRetry):
-    //   msg       : ข้อความที่จะแสดง
-    //   showRetry : true = แสดงปุ่ม "← ลองอีเมลอื่น" (ใช้เมื่ออีเมลไม่พบ)
+    // ── Helper: show / hide error ──────────────────────────────────────
     function showError(msg, showRetry) {
       const el = document.getElementById('error-msg');
       el.textContent = msg;
-      el.classList.add('show');  // CSS class 'show' ทำให้กล่อง error มองเห็น
+      el.classList.add('show');
       document.getElementById('error-retry-btn').style.display = showRetry ? 'block' : 'none';
     }
-    // clearError(): ซ่อนกล่อง error และปุ่ม retry
     function clearError() {
       const el = document.getElementById('error-msg');
       el.textContent = '';
@@ -738,13 +691,7 @@
       setTimeout(() => document.getElementById('password-input').focus(), 50);
     }
 
-    // ── Sign In: ส่ง Email/Password ให้ Firebase ตรวจสอบ ────────────────
-    // ขั้นตอน:
-    //   1. รับค่า email + password จาก input
-    //   2. เรียก firebase.auth().signInWithEmailAndPassword()
-    //   3. ถ้าสำเร็จ → ขอ ID Token จาก Firebase
-    //   4. เขียน Token ลง Cookie "session" (อายุ 1 ชั่วโมง)
-    //   5. redirect ไป /dashboard → main.py ตรวจสอบ Cookie นั้น
+    // ── Sign In (Firebase Email/Password) ──────────────────────────────
     function doSignIn() {
       clearError();
       const email = document.getElementById('email-input').value.trim();
@@ -759,20 +706,17 @@
       setLoading('btn-signin', true);
 
       firebase.auth()
-        .signInWithEmailAndPassword(email, password)   // ส่งไป Firebase ตรวจสอบ
+        .signInWithEmailAndPassword(email, password)
         .then(function (cred) {
-          // cred.user: object ข้อมูล user ที่ login สำเร็จ
-          return cred.user.getIdToken();  // ขอ ID Token (JWT string) จาก Firebase
+          return cred.user.getIdToken();
         })
         .then(function (token) {
-          // token: JWT ที่พิสูจน์ตัวตนได้ → เก็บใน Cookie "session"
-          // max-age=3600 → หมดอายุใน 1 ชั่วโมง
           document.cookie = 'session=' + token + '; path=/; max-age=3600';
-          window.location.href = '/dashboard';  // redirect ไป Dashboard
+          window.location.href = '/dashboard';
         })
         .catch(function (err) {
           setLoading('btn-signin', false);
-          const code = err.code || '';  // err.code: รหัสข้อผิดพลาดจาก Firebase
+          const code = err.code || '';
           if (code === 'auth/wrong-password') {
             showError('รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่');
           } else if (code === 'auth/user-not-found' || code === 'auth/invalid-email') {
@@ -789,10 +733,7 @@
         });
     }
 
-    // ── Forgot Password: ส่งลิงก์รีเซ็ตรหัสผ่านทาง Email ─────────────
-    // showForgotPassword(): สลับจาก step-2 ไป step-fp
-    // sendResetEmail(): เรียก Firebase sendPasswordResetEmail()
-    //   → Firebase ส่ง email พร้อม link ให้ผู้ใช้ตั้งรหัสผ่านใหม่
+    // ── Forgot password ────────────────────────────────────────────────
     function showForgotPassword() {
       clearError();
       const email = document.getElementById('email-input').value.trim();
@@ -835,9 +776,7 @@
         });
     }
 
-    // ── Keyboard Shortcuts: กด Enter แทนการคลิกปุ่ม ───────────────────
-    // กด Enter ในช่อง email  → เรียก goToStep2() (ถัดไป)
-    // กด Enter ในช่อง password → เรียก doSignIn() (เข้าสู่ระบบ)
+    // ── Keyboard shortcuts ─────────────────────────────────────────────
     document.getElementById('email-input').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') goToStep2();
     });
