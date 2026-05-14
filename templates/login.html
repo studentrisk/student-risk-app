@@ -4,6 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- ป้องกัน browser เก็บ cache หน้า login ไว้ -->
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
   <title>เข้าสู่ระบบ — ระบบประเมินความเสี่ยงการพ้นสภาพนักศึกษา</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -536,7 +539,7 @@
 
       <div class="field">
         <label for="password-input">รหัสผ่าน</label>
-        <input type="password" id="password-input" placeholder="••••••••" autocomplete="current-password">
+        <input type="password" id="password-input" placeholder="••••••••" autocomplete="new-password">
       </div>
 
       <div class="fp-link-row">
@@ -603,6 +606,10 @@
       measurementId: "G-WN1SL25ZQ7"
     };
     firebase.initializeApp(firebaseConfig);
+
+    // ── Sign out Firebase เมื่อโหลดหน้า login (ล้าง state หลัง logout) ──
+    // ทำให้แน่ใจว่า Firebase client-side session ถูก clear ทุกครั้ง
+    firebase.auth().signOut().catch(function() { /* ไม่ต้องทำอะไรถ้า error */ });
 
     // ── Helper: show / hide error ──────────────────────────────────────
     function showError(msg, showRetry) {
@@ -782,6 +789,44 @@
     });
     document.getElementById('password-input').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') doSignIn();
+    });
+
+    // ── Reset ฟอร์มกลับ Step 1 ทุกครั้งที่หน้า login โหลดขึ้นมา ─────────
+    // ใช้ pageshow แทน load เพราะมัน fire ทั้งตอนโหลดปกติ และตอน
+    // browser restore หน้าจาก bfcache (กดปุ่มย้อนกลับ) ซึ่งเป็นต้นเหตุ
+    // ที่ทำให้เห็นอีเมล/รหัสผ่านของผู้ใช้คนก่อน
+    window.addEventListener('pageshow', function (e) {
+      // ล้าง Firebase auth state ฝั่ง client ทุกครั้ง (ทั้งโหลดปกติ + bfcache)
+      firebase.auth().signOut().catch(function () { });
+
+      // ล้างข้อมูลในฟิลด์ทั้งหมด
+      document.getElementById('email-input').value = '';
+      document.getElementById('password-input').value = '';
+      document.getElementById('email-input').style.borderColor = '';
+
+      // Reset กลับ Step 1 เสมอ
+      clearError();
+      document.getElementById('step-1').classList.add('active');
+      document.getElementById('step-2').classList.remove('active');
+      document.getElementById('step-fp').classList.remove('active');
+
+      // Reset step indicators
+      document.getElementById('dot-1').className = 'step-dot active';
+      document.getElementById('dot-1').textContent = '1';
+      document.getElementById('dot-2').className = 'step-dot inactive';
+      document.getElementById('line-1').className = 'step-line';
+
+      // ป้องกัน browser กด Back มาที่หน้านี้อีก (ถ้ามาจาก bfcache)
+      // ให้ replace history entry ด้วยหน้า login ปกติ
+      if (e.persisted) {
+        // หน้านี้ถูก restore จาก bfcache → แทนที่ history entry เดิม
+        window.history.replaceState(null, '', window.location.href);
+      }
+
+      // Focus ที่ช่องอีเมลเสมอ
+      setTimeout(function () {
+        document.getElementById('email-input').focus();
+      }, 50);
     });
   </script>
 </body>

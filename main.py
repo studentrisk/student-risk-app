@@ -4,7 +4,7 @@ import firebase_admin
 from firebase_admin import credentials, auth
 
 from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from model_loader import predict_risk_with_perturbation, get_school_list
 
@@ -56,8 +56,12 @@ async def login_page(request: Request):
 
 @app.get("/logout")
 async def logout(request: Request):
+    # ลบ cookie session และบังคับ redirect ไปหน้า login
     response = RedirectResponse("/", status_code=302)
     response.delete_cookie("session")
+    # ป้องกัน browser cache หน้า logout
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
     return response
 
 @app.get("/dashboard", response_class=HTMLResponse)
@@ -65,10 +69,14 @@ async def dashboard(request: Request):
     user = get_current_user(request)
     if not user:
         return RedirectResponse("/")
-    return templates.TemplateResponse(request, "index.html", {
+    response = templates.TemplateResponse(request, "index.html", {
         "schools": SCHOOL_LIST,
         "user": user  # ส่งข้อมูล user ไปเผื่อใช้แสดงชื่อ/อีเมลใน index.html
     })
+    # ป้องกัน browser เก็บ cache หน้า dashboard ไว้ (ป้องกันกดปุ่มย้อนกลับหลัง logout)
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"
+    response.headers["Pragma"] = "no-cache"
+    return response
 
 @app.post("/predict", response_class=HTMLResponse)
 async def predict(
@@ -84,9 +92,13 @@ async def predict(
         return RedirectResponse("/", status_code=303)
         
     result = predict_risk_with_perturbation(gpa, admission, degree, school, grade_y1s1)
-    return templates.TemplateResponse(request, "index.html", {
+    response = templates.TemplateResponse(request, "index.html", {
         "result": result,
         "schools": SCHOOL_LIST,
         "user": user,
         "form": {"gpa": gpa, "admission": admission, "degree": degree, "school": school, "grade_y1s1": grade_y1s1}
     })
+    # ป้องกัน browser เก็บ cache ผลการประเมิน
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"
+    response.headers["Pragma"] = "no-cache"
+    return response
