@@ -913,13 +913,8 @@
 
     <div class="sidebar-card">
       <div class="sidebar-title">Recent Activity</div>
-      <div class="activity-item">
-        <span>📊 ประเมินนักศึกษา</span>
-        <span class="activity-time">เมื่อกี้</span>
-      </div>
-      <div class="activity-item">
-        <span>🔑 เข้าสู่ระบบ</span>
-        <span class="activity-time">วันนี้</span>
+      <div id="activity-list">
+        <!-- จะถูกเติมโดย JavaScript -->
       </div>
     </div>
   </div>
@@ -943,6 +938,61 @@
         document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
         el.classList.add('active');
       };
+
+      // ── Recent Activity (session-based, per-user) ──
+      // ดึงอีเมลผู้ใช้ปัจจุบันจาก template
+      const CURRENT_USER = {{ user.email | tojson }};
+      const SESSION_USER_KEY = 'ra_user';
+      const SESSION_ASSESSED_KEY = 'ra_assessed';
+
+      // ตรวจว่าบัญชีที่ login อยู่ตรงกับที่บันทึกไว้ใน sessionStorage หรือไม่
+      const storedUser = sessionStorage.getItem(SESSION_USER_KEY);
+      if (storedUser !== CURRENT_USER) {
+        // บัญชีต่างกัน หรือเป็น session ใหม่ — รีเซ็ตทุกอย่าง
+        sessionStorage.setItem(SESSION_USER_KEY, CURRENT_USER);
+        sessionStorage.removeItem(SESSION_ASSESSED_KEY);
+      }
+
+      // ตรวจว่าหน้านี้มาจากการ POST /predict (มีผลประเมิน) หรือไม่
+      const hasResult = {{ 'true' if result else 'false' }};
+      if (hasResult) {
+        // บันทึกเวลาประเมินล่าสุดลง sessionStorage
+        sessionStorage.setItem(SESSION_ASSESSED_KEY, Date.now().toString());
+      }
+
+      // แสดง Recent Activity
+      function renderActivity() {
+        const activityList = document.getElementById('activity-list');
+        const assessedAt = sessionStorage.getItem(SESSION_ASSESSED_KEY);
+        let html = '';
+
+        if (assessedAt) {
+          // มีการประเมินใน session นี้
+          html += `
+            <div class="activity-item">
+              <span>📊 ประเมินนักศึกษา</span>
+              <span class="activity-time">เมื่อสักครู่</span>
+            </div>
+          `;
+        } else {
+          // ยังไม่มีการประเมินใน session นี้
+          html += `
+            <div class="activity-item">
+              <span style="color:var(--text2);font-style:italic;">ยังไม่มีการประเมิน</span>
+            </div>
+          `;
+        }
+
+        html += `
+          <div class="activity-item">
+            <span>🔑 เข้าสู่ระบบ</span>
+            <span class="activity-time">วันนี้</span>
+          </div>
+        `;
+        activityList.innerHTML = html;
+      }
+
+      renderActivity();
 
       // ── Searchable combobox ──
       const SCHOOLS = {{ schools | tojson
