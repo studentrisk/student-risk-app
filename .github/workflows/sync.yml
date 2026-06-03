@@ -7,10 +7,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          lfs: true
-      - name: Push to hub
+      - name: Push to hub fresh
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push --force https://StudentRisk:${HF_TOKEN}@huggingface.co/spaces/StudentRisk/student-risk-app main
+        run: |
+          rm -rf .git
+          rm -rf venv
+          git init
+          git branch -m main
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add .
+          git commit -m "Fresh deploy to Hugging Face"
+          git push --force https://StudentRisk:${HF_TOKEN}@huggingface.co/spaces/StudentRisk/student-risk-app main
