@@ -17,10 +17,11 @@ os.environ["JOBLIB_MULTIPROCESSING"] = "0"
 
 # 2. คลาส StudentRiskEncoder ฉบับสมบูรณ์
 class StudentRiskEncoder(BaseEstimator, TransformerMixin):
+    ADM_MAP = {'โควตา': 1, 'สอบคัดเลือก': 2, 'อื่นๆ': 0}
+    DEG_MAP = {'ปวช.': 1, 'มัธยมศึกษาตอนปลาย (ม.6)': 2, 'ปวส.': 3}
+
     def __init__(self, school_lookup=None):
         self.school_lookup = school_lookup if school_lookup is not None else {}
-        self.ADM_MAP = {'โควตา': 1, 'สอบคัดเลือก': 2, 'อื่นๆ': 0}
-        self.DEG_MAP = {'ปวช.': 1, 'มัธยมศึกษาตอนปลาย (ม.6)': 2, 'ปวส.': 3}
 
     def fit(self, X, y=None):
         return self
