@@ -2,6 +2,14 @@ import dill
 import sys
 import glob
 import os
+
+# จำกัดจำนวน Thread เพื่อไม่ให้ Render Server ค้าง (503 Service Unavailable)
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -37,6 +45,12 @@ print(f"[model_loader] โหลดโมเดล: {_model_path}")
 
 with open(_model_path, "rb") as f:
     pipeline = dill.load(f)
+
+# ป้องกันโมเดล (เช่น Random Forest) แตก Thread ไปแย่ง CPU กันเองจนค้าง
+if hasattr(pipeline, "steps"):
+    model_step = pipeline.steps[-1][1]
+    if hasattr(model_step, "n_jobs"):
+        model_step.n_jobs = 1
 
 # ──────────────────────────────────────────────────────────────────────────────
 # PATCH: inject pd และ np เข้า globals ของ transform จริงใน pkl
