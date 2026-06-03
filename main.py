@@ -78,6 +78,15 @@ async def dashboard(request: Request):
     response.headers["Pragma"] = "no-cache"
     return response
 
+
+# แปลง period_label → study_year (ตัวเลข) ที่โมเดลต้องการ
+PERIOD_MAP = {
+    "ปี 1 เทอม 1": 1, "ปี 1 เทอม 2": 2,
+    "ปี 2 เทอม 1": 3, "ปี 2 เทอม 2": 4,
+    "ปี 3 เทอม 1": 5, "ปี 3 เทอม 2": 6,
+    "ปี 4 เทอม 1": 7, "ปี 4 เทอม 2": 8,
+}
+
 @app.post("/predict", response_class=HTMLResponse)
 async def predict(
     request: Request,
@@ -85,18 +94,31 @@ async def predict(
     admission: str = Form(...),
     degree: str = Form(...),
     school: str = Form(...),
-    grade_y1s1: float = Form(...),
+    gpa_at_year: float = Form(...),
+    period_label: str = Form(...),
 ):
     user = get_current_user(request)
     if not user:
         return RedirectResponse("/", status_code=303)
-        
-    result = predict_risk_with_perturbation(gpa, admission, degree, school, grade_y1s1)
+
+    study_year = PERIOD_MAP.get(period_label, 1)
+    result = predict_risk_with_perturbation(
+        gpa, admission, degree, school,
+        study_year=study_year,
+        gpa_at_year=gpa_at_year,
+    )
     response = templates.TemplateResponse(request, "index.html", {
         "result": result,
         "schools": SCHOOL_LIST,
         "user": user,
-        "form": {"gpa": gpa, "admission": admission, "degree": degree, "school": school, "grade_y1s1": grade_y1s1}
+        "form": {
+            "gpa": gpa,
+            "admission": admission,
+            "degree": degree,
+            "school": school,
+            "gpa_at_year": gpa_at_year,
+            "period_label": period_label,
+        }
     })
     # ป้องกัน browser เก็บ cache ผลการประเมิน
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"

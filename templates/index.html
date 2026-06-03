@@ -517,8 +517,6 @@
     }
 
     /* SIDEBAR */
-    .sidebar {}
-
     .sidebar-card {
       background: var(--sidebar);
       border-radius: 14px;
@@ -534,34 +532,6 @@
       text-transform: uppercase;
       letter-spacing: .05em;
       margin-bottom: .9rem;
-    }
-
-    .btn-action {
-      width: 100%;
-      padding: .65rem;
-      border-radius: 9px;
-      font-size: .82rem;
-      font-family: inherit;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      margin-bottom: .5rem;
-      transition: opacity .2s;
-    }
-
-    .btn-purple {
-      background: linear-gradient(135deg, var(--accent2), var(--accent));
-      color: #fff;
-    }
-
-    .btn-dark {
-      background: rgba(255, 255, 255, .08);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .btn-action:hover {
-      opacity: .85;
     }
 
     .status-row {
@@ -622,6 +592,7 @@
       border-bottom: 1px solid var(--border);
       display: flex;
       gap: .5rem;
+      justify-content: space-between;
     }
 
     .activity-item:last-child {
@@ -688,7 +659,7 @@
       border-top: 1px solid var(--border);
     }
 
-    /* ── Light mode: green overrides (darker, readable on white) ─── */
+    /* ── Light mode: green overrides ─── */
     [data-theme="light"] .result-card.safe {
       background: linear-gradient(135deg, #f0fdf4, #dcfce7);
       border: 1.5px solid #86efac;
@@ -731,7 +702,7 @@
       color: #15803d;
     }
 
-    /* ── Light mode: red/danger overrides (light bg, readable on white) ─── */
+    /* ── Light mode: red/danger overrides ─── */
     [data-theme="light"] .result-card.danger {
       background: linear-gradient(135deg, #fff5f5, #fee2e2);
       border: 1.5px solid #fca5a5;
@@ -774,6 +745,12 @@
     [data-theme="light"] .status-val.err {
       color: #dc2626;
     }
+
+    /* select option dark mode fix */
+    select option {
+      background: var(--card);
+      color: var(--text);
+    }
   </style>
 </head>
 
@@ -793,7 +770,6 @@
 
   <div class="page">
     <div class="main-col">
-
 
       <!-- Result -->
       {% if result %}
@@ -830,8 +806,9 @@
         </div>
         <div style="margin-top:.8rem;">
           <span class="tag-info">{{ form.school }}</span>
-          <span class="tag-info">GPA {{ form.gpa }}</span>
-          <span class="tag-info">เกรดปี 1/1: {{ form.grade_y1s1 }}</span>
+          <span class="tag-info">GPA ก่อนเข้า: {{ form.gpa }}</span>
+          <span class="tag-info">{{ form.period_label }}</span>
+          <span class="tag-info">GPA ปัจจุบัน: {{ form.gpa_at_year }}</span>
           <span class="tag-info">{{ form.degree }}</span>
           <span class="tag-info">{{ form.admission }}</span>
         </div>
@@ -843,21 +820,52 @@
       <div class="card-title">กรอกข้อมูลนักศึกษา</div>
       <form method="post" action="/predict">
         <div class="grid">
+
+          <!-- GPA ก่อนรับเข้า -->
           <div class="field">
             <label>คะแนนเฉลี่ยก่อนรับเข้า (GPA) <span>*</span></label>
-            <input type="number" name="gpa" min="0" max="4" step="0.01" placeholder="0.00 – 4.00"
+            <input type="number" name="gpa" id="inp-gpa" min="0" max="4" step="0.01" placeholder="0.00 – 4.00"
               value="{{ form.gpa if form else '' }}" required>
-            <span class="hint">กรอกค่าระหว่าง 0.00 – 4.00</span>
+            <span class="hint">GPA จากสถาบันก่อนเข้าศึกษา (0.00 – 4.00)</span>
           </div>
+
+          <!-- GPA ปัจจุบัน -->
           <div class="field">
-            <label>เกรดปีแรกเทอมแรก <span>*</span></label>
-            <input type="number" name="grade_y1s1" min="0" max="4" step="0.01" placeholder="0.00 – 4.00"
-              value="{{ form.grade_y1s1 if form else '' }}" required>
-            <span class="hint">เกรดเฉลี่ยสะสมปีที่ 1 เทอมที่ 1</span>
+            <label>GPA ปัจจุบัน <span>*</span></label>
+            <input type="number" name="gpa_at_year" id="inp-gpa-current" min="0" max="4" step="0.01"
+              placeholder="0.00 – 4.00" value="{{ form.gpa_at_year if form else '' }}" required>
+            <span class="hint">GPA สะสม ณ ปี/เทอมที่เลือก (0.00 – 4.00)</span>
           </div>
+
+          <!-- ปี / เทอมปัจจุบัน -->
+          <div class="field">
+            <label>ปี / เทอมปัจจุบัน <span>*</span></label>
+            <select name="period_label" id="inp-period" required>
+              <option value="" disabled {% if not form %}selected{% endif %}>-- เลือกปี / เทอม --</option>
+              <option value="ปี 1 เทอม 1" {% if form and form.period_label=='ปี 1 เทอม 1' %}selected{% endif %}>ปี 1
+                เทอม 1</option>
+              <option value="ปี 1 เทอม 2" {% if form and form.period_label=='ปี 1 เทอม 2' %}selected{% endif %}>ปี 1
+                เทอม 2</option>
+              <option value="ปี 2 เทอม 1" {% if form and form.period_label=='ปี 2 เทอม 1' %}selected{% endif %}>ปี 2
+                เทอม 1</option>
+              <option value="ปี 2 เทอม 2" {% if form and form.period_label=='ปี 2 เทอม 2' %}selected{% endif %}>ปี 2
+                เทอม 2</option>
+              <option value="ปี 3 เทอม 1" {% if form and form.period_label=='ปี 3 เทอม 1' %}selected{% endif %}>ปี 3
+                เทอม 1</option>
+              <option value="ปี 3 เทอม 2" {% if form and form.period_label=='ปี 3 เทอม 2' %}selected{% endif %}>ปี 3
+                เทอม 2</option>
+              <option value="ปี 4 เทอม 1" {% if form and form.period_label=='ปี 4 เทอม 1' %}selected{% endif %}>ปี 4
+                เทอม 1</option>
+              <option value="ปี 4 เทอม 2" {% if form and form.period_label=='ปี 4 เทอม 2' %}selected{% endif %}>ปี 4
+                เทอม 2</option>
+            </select>
+            <span class="hint">เลือกว่า GPA ปัจจุบันของนักศึกษาอยู่ในช่วงใด</span>
+          </div>
+
+          <!-- วิธีรับเข้า -->
           <div class="field">
             <label>วิธีรับเข้า <span>*</span></label>
-            <select name="admission" required>
+            <select name="admission" id="inp-admission" required>
               <option value="" disabled {% if not form %}selected{% endif %}>-- เลือกวิธีรับเข้า --</option>
               <option value="โควตา" {% if form and form.admission=='โควตา' %}selected{% endif %}>โควตา</option>
               <option value="สอบคัดเลือก" {% if form and form.admission=='สอบคัดเลือก' %}selected{% endif %}>สอบคัดเลือก
@@ -865,9 +873,11 @@
               <option value="อื่นๆ" {% if form and form.admission=='อื่นๆ' %}selected{% endif %}>อื่นๆ</option>
             </select>
           </div>
+
+          <!-- วุฒิการศึกษา -->
           <div class="field">
             <label>วุฒิการศึกษา <span>*</span></label>
-            <select name="degree" required>
+            <select name="degree" id="inp-degree" required>
               <option value="" disabled {% if not form %}selected{% endif %}>-- เลือกวุฒิ --</option>
               <option value="มัธยมศึกษาตอนปลาย (ม.6)" {% if form and form.degree=='มัธยมศึกษาตอนปลาย (ม.6)' %}selected{%
                 endif %}>มัธยมศึกษาตอนปลาย (ม.6)</option>
@@ -875,6 +885,8 @@
               <option value="ปวส." {% if form and form.degree=='ปวส.' %}selected{% endif %}>ปวส.</option>
             </select>
           </div>
+
+          <!-- โรงเรียน / สถาบัน -->
           <div class="field full">
             <label>โรงเรียน / สถาบันที่จบมา <span>*</span></label>
             <div class="sc-wrap" id="sc-wrap">
@@ -885,8 +897,9 @@
             <input type="hidden" id="sc-val" name="school" value="{{ form.school if form else '' }}">
             <span class="hint">พิมพ์ชื่อสถาบันเพื่อค้นหา — ถ้าไม่พบในรายการ ระบบจะประเมินเป็นสถาบันเอกชน</span>
           </div>
+
         </div>
-        <button type="submit">ประเมินความเสี่ยง</button>
+        <button type="submit" id="btn-submit">ประเมินความเสี่ยง</button>
       </form>
     </div>
 
@@ -940,35 +953,28 @@
       };
 
       // ── Recent Activity (session-based, per-user) ──
-      // ดึงอีเมลผู้ใช้ปัจจุบันจาก template
       const CURRENT_USER = {{ user.email | tojson
     }};
     const SESSION_USER_KEY = 'ra_user';
     const SESSION_ASSESSED_KEY = 'ra_assessed';
 
-    // ตรวจว่าบัญชีที่ login อยู่ตรงกับที่บันทึกไว้ใน sessionStorage หรือไม่
     const storedUser = sessionStorage.getItem(SESSION_USER_KEY);
     if (storedUser !== CURRENT_USER) {
-      // บัญชีต่างกัน หรือเป็น session ใหม่ — รีเซ็ตทุกอย่าง
       sessionStorage.setItem(SESSION_USER_KEY, CURRENT_USER);
       sessionStorage.removeItem(SESSION_ASSESSED_KEY);
     }
 
-    // ตรวจว่าหน้านี้มาจากการ POST /predict (มีผลประเมิน) หรือไม่
     const hasResult = {{ 'true' if result else 'false' }};
     if (hasResult) {
-      // บันทึกเวลาประเมินล่าสุดลง sessionStorage
       sessionStorage.setItem(SESSION_ASSESSED_KEY, Date.now().toString());
     }
 
-    // แสดง Recent Activity
     function renderActivity() {
       const activityList = document.getElementById('activity-list');
       const assessedAt = sessionStorage.getItem(SESSION_ASSESSED_KEY);
       let html = '';
 
       if (assessedAt) {
-        // มีการประเมินใน session นี้
         html += `
             <div class="activity-item">
               <span>ประเมินนักศึกษา</span>
@@ -976,7 +982,6 @@
             </div>
           `;
       } else {
-        // ยังไม่มีการประเมินใน session นี้
         html += `
             <div class="activity-item">
               <span style="color:var(--text2);font-style:italic;">ยังไม่มีการประเมิน</span>
@@ -996,8 +1001,7 @@
     renderActivity();
 
     // ── Searchable combobox ──
-    const SCHOOLS = {{ schools | tojson
-    }};
+    const SCHOOLS = {{ schools | tojson }};
     const searchEl = document.getElementById('sc-search');
     const dropEl = document.getElementById('sc-drop');
     const valEl = document.getElementById('sc-val');
@@ -1006,43 +1010,81 @@
     function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
     function getPool() {
-      const deg = document.querySelector('select[name="degree"]').value;
+      const deg = document.getElementById('inp-degree').value;
       if (deg === 'มัธยมศึกษาตอนปลาย (ม.6)') return SCHOOLS.filter(s => !s.includes('วิทยาลัย'));
       if (deg === 'ปวช.' || deg === 'ปวส.') return SCHOOLS.filter(s => s.includes('วิทยาลัย'));
       return SCHOOLS;
     }
 
     function render(q) {
-      const pool = getPool(); const lq = q.trim().toLowerCase();
+      const pool = getPool();
+      const lq = q.trim().toLowerCase();
       const matches = lq ? pool.filter(s => s.toLowerCase().includes(lq)) : pool;
       dropEl.innerHTML = '';
       if (matches.length === 0) {
-        const d = document.createElement('div'); d.className = 'sc-empty';
+        const d = document.createElement('div');
+        d.className = 'sc-empty';
         d.textContent = `ไม่พบ "${q}" — ระบบจะใช้ชื่อนี้และประเมินเป็นสถาบันเอกชน`;
         dropEl.appendChild(d);
       } else {
         const slice = matches.slice(0, 80);
         slice.forEach(s => {
-          const d = document.createElement('div'); d.className = 'sc-opt';
-          if (lq) { const i = s.toLowerCase().indexOf(lq); d.innerHTML = esc(s.slice(0, i)) + '<mark>' + esc(s.slice(i, i + q.trim().length)) + '</mark>' + esc(s.slice(i + q.trim().length)); }
-          else { d.textContent = s; }
+          const d = document.createElement('div');
+          d.className = 'sc-opt';
+          if (lq) {
+            const i = s.toLowerCase().indexOf(lq);
+            d.innerHTML = esc(s.slice(0, i)) + '<mark>' + esc(s.slice(i, i + q.trim().length)) + '</mark>' + esc(s.slice(i + q.trim().length));
+          } else {
+            d.textContent = s;
+          }
           d.onmousedown = (e) => { e.preventDefault(); pick(s); };
           dropEl.appendChild(d);
         });
-        if (matches.length > 80) { const d = document.createElement('div'); d.className = 'sc-more'; d.textContent = `แสดง 80 จาก ${matches.length} รายการ — พิมพ์เพิ่มเติมเพื่อแคบลง`; dropEl.appendChild(d); }
+        if (matches.length > 80) {
+          const d = document.createElement('div');
+          d.className = 'sc-more';
+          d.textContent = `แสดง 80 จาก ${matches.length} รายการ — พิมพ์เพิ่มเติมเพื่อแคบลง`;
+          dropEl.appendChild(d);
+        }
       }
       dropEl.style.display = 'block';
     }
 
-    function pick(name) { searchEl.value = name; valEl.value = name; dropEl.style.display = 'none'; searchEl.style.borderColor = ''; }
+    function pick(name) {
+      searchEl.value = name;
+      valEl.value = name;
+      dropEl.style.display = 'none';
+      searchEl.style.borderColor = '';
+    }
 
-    document.querySelector('select[name="degree"]').addEventListener('change', () => { searchEl.value = ''; valEl.value = ''; searchEl.style.borderColor = ''; dropEl.style.display = 'none'; });
+    document.getElementById('inp-degree').addEventListener('change', () => {
+      searchEl.value = '';
+      valEl.value = '';
+      searchEl.style.borderColor = '';
+      dropEl.style.display = 'none';
+    });
+
     searchEl.addEventListener('focus', () => render(searchEl.value));
     searchEl.addEventListener('input', () => { valEl.value = searchEl.value.trim(); render(searchEl.value); });
-    searchEl.addEventListener('blur', () => { setTimeout(() => { dropEl.style.display = 'none'; }, 160); if (searchEl.value.trim()) valEl.value = searchEl.value.trim(); });
-    searchEl.closest('form').addEventListener('submit', (e) => { if (!searchEl.value.trim()) { e.preventDefault(); searchEl.focus(); searchEl.style.borderColor = '#ef4444'; } else { valEl.value = searchEl.value.trim(); } });
-    document.addEventListener('click', (e) => { if (!wrapEl.contains(e.target)) dropEl.style.display = 'none'; });
-}) ();
+    searchEl.addEventListener('blur', () => {
+      setTimeout(() => { dropEl.style.display = 'none'; }, 160);
+      if (searchEl.value.trim()) valEl.value = searchEl.value.trim();
+    });
+
+    searchEl.closest('form').addEventListener('submit', (e) => {
+      if (!searchEl.value.trim()) {
+        e.preventDefault();
+        searchEl.focus();
+        searchEl.style.borderColor = '#ef4444';
+      } else {
+        valEl.value = searchEl.value.trim();
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!wrapEl.contains(e.target)) dropEl.style.display = 'none';
+    });
+    }) ();
   </script>
 </body>
 
