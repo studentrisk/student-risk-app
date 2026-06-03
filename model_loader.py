@@ -27,17 +27,16 @@ class StudentRiskEncoder(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         print("👉 [DEBUG] คอลัมน์ที่ส่งให้ AI คือ:", X.columns.tolist())
-        
+
         X_encoded = X.copy()
-        
-        # ป้องกัน KeyError ด้วยการเช็คก่อนแปลงค่า
+
         if 'วิธีรับเข้า' in X_encoded.columns:
             X_encoded['วิธีรับเข้า'] = X_encoded['วิธีรับเข้า'].map(self.ADM_MAP).fillna(0)
         if 'วุฒิ' in X_encoded.columns:
             X_encoded['วุฒิ'] = X_encoded['วุฒิ'].map(self.DEG_MAP).fillna(0)
         if 'จบการศึกษาจาก' in X_encoded.columns:
             X_encoded['จบการศึกษาจาก'] = X_encoded['จบการศึกษาจาก'].map(self.school_lookup).fillna(0)
-            
+
         return X_encoded
 
 # 3. หลอก Pickle ให้มองเห็นคลาสนี้ใน __main__
@@ -58,30 +57,43 @@ if hasattr(pipeline, "steps"):
     if hasattr(model_step, "n_jobs"):
         model_step.n_jobs = 1
 
-# 5. ฟังก์ชันแพ็กข้อมูล (ตัวการสำคัญที่ต้องใช้คีย์ภาษาไทย)
+# 5. ชื่อคอลัมน์จริงที่ใช้เวลาเทรน (ตรึงไว้ที่นี่เพื่อใช้ทั้งไฟล์)
+ACTUAL_COLS = [
+    'คะแนนเฉลี่ยก่อนรับเข้า',
+    'วิธีรับเข้า',
+    'วุฒิ',
+    'จบการศึกษาจาก',
+    'GPA ปัจจุบัน',
+    'ปี/เทอม',
+]
+
+# 6. ฟังก์ชันประเมินความเสี่ยง
 def predict_risk_with_perturbation(
     gpa: float, admission: str, degree: str, school: str,
     study_year: int = 1, gpa_at_year: float = 0.0,
     n_perturbations: int = 30, gpa_noise_std: float = 0.05
 ) -> dict:
-    
+
     rng = np.random.default_rng(seed=42)
     noise = rng.normal(0.0, gpa_noise_std, size=n_perturbations)
     gpa_values = np.clip(np.concatenate([[gpa], gpa + noise]), 0.0, 4.0)
 
-    # 🎯 สร้าง DataFrame ให้มีคอลัมน์ภาษาไทยตรงกับตอนเทรนเป๊ะๆ
+    # สร้าง rows ด้วย ACTUAL_COLS เพื่อให้ชื่อคอลัมน์ตรงกับที่เทรนมา 100%
     rows = [
         {
-            "คะแนนเฉลี่ยก่อนรับเข้า": float(g),
-            "วิธีรับเข้า":            admission,
-            "วุฒิ":                    degree,
-            "จบการศึกษาจาก":           school,
-            "GPA ปัจจุบัน":            gpa_at_year,
-            "ปี/เทอม":                study_year,
+            ACTUAL_COLS[0]: float(g),
+            ACTUAL_COLS[1]: admission,
+            ACTUAL_COLS[2]: degree,
+            ACTUAL_COLS[3]: school,
+            ACTUAL_COLS[4]: gpa_at_year,
+            ACTUAL_COLS[5]: study_year,
         }
         for g in gpa_values
     ]
     X_batch = pd.DataFrame(rows)
+
+    # บังคับ column order ให้ตรงเป๊ะกับที่โมเดลคาดหวัง
+    X_batch = X_batch[ACTUAL_COLS]
 
     # ทายผล
     probs       = pipeline.predict_proba(X_batch)
@@ -91,7 +103,12 @@ def predict_risk_with_perturbation(
     perturb_std = float(probs[:, 0].std())
 
     gap = abs(risk_mean - 0.5)
-    confidence, confidence_en = ("สูง", "high") if gap >= 0.25 else ("ปานกลาง", "medium") if gap >= 0.10 else ("ต่ำ", "low")
+    if gap >= 0.25:
+        confidence, confidence_en = "สูง", "high"
+    elif gap >= 0.10:
+        confidence, confidence_en = "ปานกลาง", "medium"
+    else:
+        confidence, confidence_en = "ต่ำ", "low"
 
     return {
         "risk_percent":    round(risk_mean * 100, 1),
