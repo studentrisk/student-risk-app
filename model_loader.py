@@ -71,7 +71,7 @@ ACTUAL_COLS = [
 # 6. ฟังก์ชันประเมินความเสี่ยง
 def predict_risk_with_perturbation(
     gpa: float, admission: str, degree: str, school: str,
-    study_year: int = 1, gpa_at_year: float = 0.0,
+    study_year: float = 1.0, gpa_at_year: float = 0.0,
     n_perturbations: int = 30, gpa_noise_std: float = 0.05
 ) -> dict:
 

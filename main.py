@@ -88,10 +88,10 @@ async def dashboard(request: Request):
 
 # แปลง period_label → study_year (ตัวเลข) ที่โมเดลต้องการ
 PERIOD_MAP = {
-    "ปี 1 เทอม 1": 1, "ปี 1 เทอม 2": 2,
-    "ปี 2 เทอม 1": 3, "ปี 2 เทอม 2": 4,
-    "ปี 3 เทอม 1": 5, "ปี 3 เทอม 2": 6,
-    "ปี 4 เทอม 1": 7, "ปี 4 เทอม 2": 8,
+    "ปี 1 เทอม 1": 1.0, "ปี 1 เทอม 2": 1.5,
+    "ปี 2 เทอม 1": 2.0, "ปี 2 เทอม 2": 2.5,
+    "ปี 3 เทอม 1": 3.0, "ปี 3 เทอม 2": 3.5,
+    "ปี 4 เทอม 1": 4.0, "ปี 4 เทอม 2": 4.5,
 }
 
 @app.post("/predict", response_class=HTMLResponse)
@@ -108,7 +108,7 @@ def predict(
     if not user:
         return RedirectResponse("/", status_code=303)
 
-    study_year = PERIOD_MAP.get(period_label, 1)
+    study_year = PERIOD_MAP.get(period_label, 1.0)
     result = predict_risk_with_perturbation(
         gpa, admission, degree, school,
         study_year=study_year,
