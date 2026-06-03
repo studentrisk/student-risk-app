@@ -7,27 +7,34 @@
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <title>เข้าสู่ระบบ — Student Risk System</title>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
 
   <style>
     :root {
-      --bg:          #0b1120;
-      --surface:     #111827;
-      --surface-2:   #1a2236;
-      --border:      #1e2d45;
-      --border-2:    #253550;
-      --accent:      #2563eb;
-      --accent-dim:  rgba(37,99,235,.12);
-      --accent-glow: rgba(37,99,235,.22);
-      --danger:      #dc2626;
-      --danger-dim:  rgba(220,38,38,.10);
-      --safe:        #059669;
-      --text:        #e2e8f0;
-      --text-2:      #94a3b8;
-      --text-3:      #64748b;
+      --bg: #0b1120;
+      --surface: #111827;
+      --surface-2: #1a2236;
+      --border: #1e2d45;
+      --border-2: #253550;
+      --accent: #2563eb;
+      --accent-dim: rgba(37, 99, 235, .12);
+      --accent-glow: rgba(37, 99, 235, .22);
+      --danger: #dc2626;
+      --danger-dim: rgba(220, 38, 38, .10);
+      --safe: #059669;
+      --text: #e2e8f0;
+      --text-2: #94a3b8;
+      --text-3: #64748b;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       font-family: 'IBM Plex Sans Thai', sans-serif;
@@ -63,9 +70,22 @@
       flex-shrink: 0;
     }
 
-    .brand-text { display: flex; flex-direction: column; line-height: 1.25; }
-    .brand-title { font-size: 13px; font-weight: 700; color: var(--text); }
-    .brand-sub   { font-size: 11px; color: var(--text-3); }
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.25;
+    }
+
+    .brand-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-3);
+    }
 
     /* ── Card ── */
     .login-card {
@@ -75,10 +95,12 @@
       padding: 1.75rem 1.75rem 1.5rem;
       width: 100%;
       max-width: 380px;
-      box-shadow: 0 4px 24px rgba(0,0,0,.4);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, .4);
     }
 
-    .card-header { margin-bottom: 1.5rem; }
+    .card-header {
+      margin-bottom: 1.5rem;
+    }
 
     .card-title {
       font-size: 16px;
@@ -87,7 +109,10 @@
       margin-bottom: 3px;
     }
 
-    .card-sub { font-size: 12px; color: var(--text-3); }
+    .card-sub {
+      font-size: 12px;
+      color: var(--text-3);
+    }
 
     /* ── Step indicator ── */
     .step-indicator {
@@ -109,9 +134,20 @@
       transition: all .2s;
     }
 
-    .step-dot.active   { background: var(--accent); color: #fff; }
-    .step-dot.done     { background: var(--safe);   color: #fff; }
-    .step-dot.inactive { background: var(--border); color: var(--text-3); }
+    .step-dot.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .step-dot.done {
+      background: var(--safe);
+      color: #fff;
+    }
+
+    .step-dot.inactive {
+      background: var(--border);
+      color: var(--text-3);
+    }
 
     .step-line {
       flex: 1;
@@ -121,10 +157,14 @@
       transition: background .2s;
     }
 
-    .step-line.done { background: var(--safe); }
+    .step-line.done {
+      background: var(--safe);
+    }
 
     /* ── Step label ── */
-    .step-label { margin-bottom: 1.1rem; }
+    .step-label {
+      margin-bottom: 1.1rem;
+    }
 
     .step-label h2 {
       font-size: 14px;
@@ -133,10 +173,15 @@
       margin-bottom: 3px;
     }
 
-    .step-label p { font-size: 12px; color: var(--text-3); }
+    .step-label p {
+      font-size: 12px;
+      color: var(--text-3);
+    }
 
     /* ── Field ── */
-    .field { margin-bottom: .9rem; }
+    .field {
+      margin-bottom: .9rem;
+    }
 
     .field label {
       display: block;
@@ -165,11 +210,18 @@
       box-shadow: 0 0 0 3px var(--accent-dim);
     }
 
-    .field input::placeholder { color: var(--text-3); }
+    .field input::placeholder {
+      color: var(--text-3);
+    }
 
     /* ── Step panels ── */
-    .step-panel        { display: none; }
-    .step-panel.active { display: block; }
+    .step-panel {
+      display: none;
+    }
+
+    .step-panel.active {
+      display: block;
+    }
 
     /* ── Buttons ── */
     .btn-primary {
@@ -190,8 +242,14 @@
       gap: 6px;
     }
 
-    .btn-primary:hover  { opacity: .9; box-shadow: 0 4px 14px var(--accent-glow); }
-    .btn-primary:active { transform: scale(.99); }
+    .btn-primary:hover {
+      opacity: .9;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .btn-primary:active {
+      transform: scale(.99);
+    }
 
     .btn-back {
       background: none;
@@ -209,7 +267,9 @@
       transition: color .15s;
     }
 
-    .btn-back:hover { color: var(--text); }
+    .btn-back:hover {
+      color: var(--text);
+    }
 
     .btn-forgot {
       background: none;
@@ -222,7 +282,9 @@
       transition: opacity .15s;
     }
 
-    .btn-forgot:hover { opacity: .75; }
+    .btn-forgot:hover {
+      opacity: .75;
+    }
 
     .btn-secondary {
       flex: 1;
@@ -238,9 +300,15 @@
       transition: border-color .15s, color .15s;
     }
 
-    .btn-secondary:hover { border-color: var(--border-2); color: var(--text); }
+    .btn-secondary:hover {
+      border-color: var(--border-2);
+      color: var(--text);
+    }
 
-    .btn-row { display: flex; gap: .6rem; }
+    .btn-row {
+      display: flex;
+      gap: .6rem;
+    }
 
     /* ── Email pill ── */
     .email-pill {
@@ -274,7 +342,7 @@
     .error-msg {
       display: none;
       background: var(--danger-dim);
-      border: 1px solid rgba(220,38,38,.25);
+      border: 1px solid rgba(220, 38, 38, .25);
       color: #f87171;
       border-radius: 8px;
       padding: .5rem .75rem;
@@ -282,7 +350,9 @@
       margin-bottom: .75rem;
     }
 
-    .error-msg.show { display: block; }
+    .error-msg.show {
+      display: block;
+    }
 
     .error-retry-btn {
       display: none;
@@ -291,7 +361,7 @@
       margin-bottom: .75rem;
       height: 34px;
       background: none;
-      border: 1px solid rgba(220,38,38,.35);
+      border: 1px solid rgba(220, 38, 38, .35);
       color: #f87171;
       border-radius: 8px;
       font-size: 12px;
@@ -301,10 +371,14 @@
       transition: background .15s;
     }
 
-    .error-retry-btn:hover { background: var(--danger-dim); }
+    .error-retry-btn:hover {
+      background: var(--danger-dim);
+    }
 
     /* ── Forgot password ── */
-    .fp-link-row { margin-bottom: .75rem; }
+    .fp-link-row {
+      margin-bottom: .75rem;
+    }
 
     .fp-desc {
       font-size: 12px;
@@ -324,7 +398,10 @@
       word-break: break-all;
     }
 
-    .fp-success-wrap { text-align: center; padding: .75rem 0 .5rem; }
+    .fp-success-wrap {
+      text-align: center;
+      padding: .75rem 0 .5rem;
+    }
 
     .fp-success-icon {
       font-size: 24px;
@@ -339,23 +416,36 @@
       margin-bottom: 4px;
     }
 
-    .fp-success-sub { font-size: 12px; color: var(--text-3); line-height: 1.55; }
+    .fp-success-sub {
+      font-size: 12px;
+      color: var(--text-3);
+      line-height: 1.55;
+    }
 
     /* ── Spinner ── */
     .spinner {
       display: none;
       width: 18px;
       height: 18px;
-      border: 2px solid rgba(255,255,255,.35);
+      border: 2px solid rgba(255, 255, 255, .35);
       border-top-color: #fff;
       border-radius: 50%;
       animation: spin .65s linear infinite;
     }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
 
-    .btn-primary.loading .btn-text { display: none; }
-    .btn-primary.loading .spinner  { display: block; }
+    .btn-primary.loading .btn-text {
+      display: none;
+    }
+
+    .btn-primary.loading .spinner {
+      display: block;
+    }
 
     /* ── Footer ── */
     .footer-note {
@@ -365,7 +455,9 @@
       margin-top: 1.25rem;
     }
 
-    #firebaseui-auth-container { display: none !important; }
+    #firebaseui-auth-container {
+      display: none !important;
+    }
   </style>
 </head>
 
@@ -494,7 +586,7 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    firebase.auth().signOut().catch(function() {});
+    firebase.auth().signOut().catch(function () { });
 
     // ── Helper: show / hide error ──────────────────────────────────────
     function showError(msg, showRetry) {
@@ -574,7 +666,7 @@
     // ── Sign In ────────────────────────────────────────────────────────
     function doSignIn() {
       clearError();
-      const email    = document.getElementById('email-input').value.trim();
+      const email = document.getElementById('email-input').value.trim();
       const password = document.getElementById('password-input').value;
 
       if (!password) {
@@ -662,7 +754,7 @@
 
     // ── Reset form on pageshow (handles bfcache) ───────────────────────
     window.addEventListener('pageshow', function (e) {
-      firebase.auth().signOut().catch(function () {});
+      firebase.auth().signOut().catch(function () { });
       document.getElementById('email-input').value = '';
       document.getElementById('password-input').value = '';
       document.getElementById('email-input').style.borderColor = '';

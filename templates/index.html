@@ -6,53 +6,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ระบบประเมินความเสี่ยงการพ้นสภาพนักศึกษา — RMUTK</title>
   <meta name="description" content="ระบบพยากรณ์ความเสี่ยงนักศึกษาถูกรีไทน์ มหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
   <style>
     /* ─── Design Tokens ─── */
     :root {
-      --bg:          #0b1120;
-      --surface:     #111827;
-      --surface-2:   #1a2236;
-      --border:      #1e2d45;
-      --border-2:    #253550;
-      --accent:      #2563eb;
-      --accent-dim:  rgba(37,99,235,.12);
-      --accent-glow: rgba(37,99,235,.25);
-      --danger:      #dc2626;
-      --danger-dim:  rgba(220,38,38,.10);
-      --safe:        #059669;
-      --safe-dim:    rgba(5,150,105,.10);
-      --warn:        #d97706;
-      --text:        #e2e8f0;
-      --text-2:      #94a3b8;
-      --text-3:      #64748b;
-      --nav-h:       60px;
-      --radius:      8px;
-      --radius-lg:   12px;
-      --shadow:      0 1px 3px rgba(0,0,0,.4), 0 4px 16px rgba(0,0,0,.3);
+      --bg: #0b1120;
+      --surface: #111827;
+      --surface-2: #1a2236;
+      --border: #1e2d45;
+      --border-2: #253550;
+      --accent: #2563eb;
+      --accent-dim: rgba(37, 99, 235, .12);
+      --accent-glow: rgba(37, 99, 235, .25);
+      --danger: #dc2626;
+      --danger-dim: rgba(220, 38, 38, .10);
+      --safe: #059669;
+      --safe-dim: rgba(5, 150, 105, .10);
+      --warn: #d97706;
+      --text: #e2e8f0;
+      --text-2: #94a3b8;
+      --text-3: #64748b;
+      --nav-h: 60px;
+      --radius: 8px;
+      --radius-lg: 12px;
+      --shadow: 0 1px 3px rgba(0, 0, 0, .4), 0 4px 16px rgba(0, 0, 0, .3);
     }
 
     [data-theme="light"] {
-      --bg:          #f1f5f9;
-      --surface:     #ffffff;
-      --surface-2:   #f8fafc;
-      --border:      #e2e8f0;
-      --border-2:    #cbd5e1;
-      --accent:      #1d4ed8;
-      --accent-dim:  rgba(29,78,216,.08);
-      --accent-glow: rgba(29,78,216,.18);
-      --danger:      #dc2626;
-      --danger-dim:  rgba(220,38,38,.07);
-      --safe:        #059669;
-      --safe-dim:    rgba(5,150,105,.07);
-      --warn:        #d97706;
-      --text:        #0f172a;
-      --text-2:      #475569;
-      --text-3:      #94a3b8;
-      --shadow:      0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --border: #e2e8f0;
+      --border-2: #cbd5e1;
+      --accent: #1d4ed8;
+      --accent-dim: rgba(29, 78, 216, .08);
+      --accent-glow: rgba(29, 78, 216, .18);
+      --danger: #dc2626;
+      --danger-dim: rgba(220, 38, 38, .07);
+      --safe: #059669;
+      --safe-dim: rgba(5, 150, 105, .07);
+      --warn: #d97706;
+      --text: #0f172a;
+      --text-2: #475569;
+      --text-3: #94a3b8;
+      --shadow: 0 1px 3px rgba(0, 0, 0, .08), 0 4px 16px rgba(0, 0, 0, .06);
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       font-family: 'IBM Plex Sans Thai', sans-serif;
@@ -150,7 +158,10 @@
       gap: 5px;
     }
 
-    .topbar-link:hover { color: var(--text); background: var(--accent-dim); }
+    .topbar-link:hover {
+      color: var(--text);
+      background: var(--accent-dim);
+    }
 
     .topbar-link.active {
       color: var(--accent);
@@ -190,7 +201,10 @@
       flex-shrink: 0;
     }
 
-    .user-name { color: var(--text-2); font-weight: 500; }
+    .user-name {
+      color: var(--text-2);
+      font-weight: 500;
+    }
 
     .btn-ghost {
       padding: 5px 11px;
@@ -207,7 +221,11 @@
       gap: 4px;
     }
 
-    .btn-ghost:hover { border-color: var(--border-2); color: var(--text); background: var(--surface-2); }
+    .btn-ghost:hover {
+      border-color: var(--border-2);
+      color: var(--text);
+      background: var(--surface-2);
+    }
 
     .btn-danger-ghost {
       padding: 5px 11px;
@@ -224,7 +242,10 @@
       align-items: center;
     }
 
-    .btn-danger-ghost:hover { color: var(--danger); background: var(--danger-dim); }
+    .btn-danger-ghost:hover {
+      color: var(--danger);
+      background: var(--danger-dim);
+    }
 
     /* ─── Layout ─── */
     .workspace {
@@ -237,11 +258,15 @@
     }
 
     @media (max-width: 960px) {
-      .workspace { grid-template-columns: 1fr; }
+      .workspace {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 600px) {
-      .workspace { padding: 1rem .75rem; }
+      .workspace {
+        padding: 1rem .75rem;
+      }
     }
 
     /* ─── Panel ─── */
@@ -281,7 +306,9 @@
       font-size: 13px;
     }
 
-    .panel-body { padding: 1.25rem; }
+    .panel-body {
+      padding: 1.25rem;
+    }
 
     /* ─── Result Card ─── */
     .result-banner {
@@ -295,12 +322,12 @@
 
     .result-banner.danger {
       background: var(--danger-dim);
-      border: 1px solid rgba(220,38,38,.2);
+      border: 1px solid rgba(220, 38, 38, .2);
     }
 
     .result-banner.safe {
       background: var(--safe-dim);
-      border: 1px solid rgba(5,150,105,.2);
+      border: 1px solid rgba(5, 150, 105, .2);
     }
 
     .result-icon {
@@ -314,10 +341,17 @@
       flex-shrink: 0;
     }
 
-    .result-banner.danger .result-icon { background: rgba(220,38,38,.15); }
-    .result-banner.safe  .result-icon { background: rgba(5,150,105,.15); }
+    .result-banner.danger .result-icon {
+      background: rgba(220, 38, 38, .15);
+    }
 
-    .result-text { flex: 1; }
+    .result-banner.safe .result-icon {
+      background: rgba(5, 150, 105, .15);
+    }
+
+    .result-text {
+      flex: 1;
+    }
 
     .result-verdict {
       font-size: 13px;
@@ -325,8 +359,13 @@
       margin-bottom: 2px;
     }
 
-    .result-banner.danger .result-verdict { color: #f87171; }
-    .result-banner.safe  .result-verdict { color: #34d399; }
+    .result-banner.danger .result-verdict {
+      color: #f87171;
+    }
+
+    .result-banner.safe .result-verdict {
+      color: #34d399;
+    }
 
     .result-sub {
       font-size: 12px;
@@ -340,8 +379,13 @@
       font-family: 'IBM Plex Mono', monospace;
     }
 
-    .result-banner.danger .result-pct { color: var(--danger); }
-    .result-banner.safe  .result-pct { color: var(--safe); }
+    .result-banner.danger .result-pct {
+      color: var(--danger);
+    }
+
+    .result-banner.safe .result-pct {
+      color: var(--safe);
+    }
 
     .result-pct-label {
       font-size: 10px;
@@ -362,11 +406,16 @@
     .prog-bar {
       height: 100%;
       border-radius: 99px;
-      transition: width .8s cubic-bezier(.4,0,.2,1);
+      transition: width .8s cubic-bezier(.4, 0, .2, 1);
     }
 
-    .prog-bar.danger { background: var(--danger); }
-    .prog-bar.safe   { background: var(--safe); }
+    .prog-bar.danger {
+      background: var(--danger);
+    }
+
+    .prog-bar.safe {
+      background: var(--safe);
+    }
 
     .prog-labels {
       display: flex;
@@ -414,13 +463,35 @@
       font-weight: 600;
     }
 
-    .badge.high   { background: rgba(5,150,105,.15);  color: #34d399; }
-    .badge.medium { background: rgba(217,119,6,.15);  color: #fbbf24; }
-    .badge.low    { background: rgba(220,38,38,.15);  color: #f87171; }
+    .badge.high {
+      background: rgba(5, 150, 105, .15);
+      color: #34d399;
+    }
 
-    [data-theme="light"] .badge.high   { background: rgba(5,150,105,.1);  color: #065f46; }
-    [data-theme="light"] .badge.medium { background: rgba(217,119,6,.1);  color: #92400e; }
-    [data-theme="light"] .badge.low    { background: rgba(220,38,38,.1);  color: #991b1b; }
+    .badge.medium {
+      background: rgba(217, 119, 6, .15);
+      color: #fbbf24;
+    }
+
+    .badge.low {
+      background: rgba(220, 38, 38, .15);
+      color: #f87171;
+    }
+
+    [data-theme="light"] .badge.high {
+      background: rgba(5, 150, 105, .1);
+      color: #065f46;
+    }
+
+    [data-theme="light"] .badge.medium {
+      background: rgba(217, 119, 6, .1);
+      color: #92400e;
+    }
+
+    [data-theme="light"] .badge.low {
+      background: rgba(220, 38, 38, .1);
+      color: #991b1b;
+    }
 
     /* Input tags */
     .tag-row {
@@ -444,7 +515,10 @@
       color: var(--text-2);
     }
 
-    .tag-key { color: var(--text-3); margin-right: 2px; }
+    .tag-key {
+      color: var(--text-3);
+      margin-right: 2px;
+    }
 
     /* ─── Form ─── */
     .form-grid {
@@ -454,12 +528,24 @@
     }
 
     @media (max-width: 540px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .metrics-row { grid-template-columns: 1fr 1fr; }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics-row {
+        grid-template-columns: 1fr 1fr;
+      }
     }
 
-    .field { display: flex; flex-direction: column; gap: 5px; }
-    .field.full { grid-column: 1 / -1; }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
 
     .field-label {
       font-size: 12px;
@@ -470,7 +556,10 @@
       gap: 3px;
     }
 
-    .field-label .req { color: var(--danger); font-weight: 700; }
+    .field-label .req {
+      color: var(--danger);
+      font-weight: 700;
+    }
 
     .field-hint {
       font-size: 11px;
@@ -492,15 +581,21 @@
       width: 100%;
     }
 
-    input:focus, select:focus {
+    input:focus,
+    select:focus {
       outline: none;
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-glow);
     }
 
-    input::placeholder { color: var(--text-3); }
+    input::placeholder {
+      color: var(--text-3);
+    }
 
-    select option { background: var(--surface); color: var(--text); }
+    select option {
+      background: var(--surface);
+      color: var(--text);
+    }
 
     .btn-primary {
       width: 100%;
@@ -522,16 +617,32 @@
       letter-spacing: .01em;
     }
 
-    .btn-primary:hover { opacity: .9; box-shadow: 0 4px 14px var(--accent-glow); }
-    .btn-primary:active { transform: scale(.99); }
+    .btn-primary:hover {
+      opacity: .9;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .btn-primary:active {
+      transform: scale(.99);
+    }
 
     /* ─── Sidebar ─── */
-    .sidebar-section { margin-bottom: 1.25rem; }
+    .sidebar-section {
+      margin-bottom: 1.25rem;
+    }
 
-    .kv-table { width: 100%; border-collapse: collapse; }
+    .kv-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
 
-    .kv-table tr { border-bottom: 1px solid var(--border); }
-    .kv-table tr:last-child { border-bottom: none; }
+    .kv-table tr {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .kv-table tr:last-child {
+      border-bottom: none;
+    }
 
     .kv-table td {
       padding: .55rem 0;
@@ -561,12 +672,26 @@
       display: inline-block;
     }
 
-    .status-dot.green { background: var(--safe); box-shadow: 0 0 5px var(--safe); }
-    .status-dot.red   { background: var(--danger); }
-    .status-dot.amber { background: var(--warn); }
+    .status-dot.green {
+      background: var(--safe);
+      box-shadow: 0 0 5px var(--safe);
+    }
 
-    .kv-val.ok  { color: var(--safe); }
-    .kv-val.err { color: var(--danger); }
+    .status-dot.red {
+      background: var(--danger);
+    }
+
+    .status-dot.amber {
+      background: var(--warn);
+    }
+
+    .kv-val.ok {
+      color: var(--safe);
+    }
+
+    .kv-val.err {
+      color: var(--danger);
+    }
 
     /* Activity log */
     .activity-entry {
@@ -578,7 +703,9 @@
       font-size: 12px;
     }
 
-    .activity-entry:last-child { border-bottom: none; }
+    .activity-entry:last-child {
+      border-bottom: none;
+    }
 
     .activity-dot {
       width: 6px;
@@ -589,22 +716,35 @@
       flex-shrink: 0;
     }
 
-    .activity-text { flex: 1; color: var(--text-2); }
-    .activity-time { color: var(--text-3); white-space: nowrap; }
+    .activity-text {
+      flex: 1;
+      color: var(--text-2);
+    }
+
+    .activity-time {
+      color: var(--text-3);
+      white-space: nowrap;
+    }
 
     /* ─── Searchable Combobox ─── */
-    .sc-wrap { position: relative; }
-    .sc-wrap input[type=text] { width: 100%; }
+    .sc-wrap {
+      position: relative;
+    }
+
+    .sc-wrap input[type=text] {
+      width: 100%;
+    }
 
     .sc-drop {
       display: none;
       position: absolute;
       top: calc(100% + 4px);
-      left: 0; right: 0;
+      left: 0;
+      right: 0;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      box-shadow: 0 8px 24px rgba(0,0,0,.35);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
       max-height: 200px;
       overflow-y: auto;
       z-index: 300;
@@ -618,16 +758,27 @@
       transition: background .1s;
     }
 
-    .sc-opt:hover { background: var(--accent-dim); }
-    .sc-opt mark { background: rgba(37,99,235,.25); color: var(--text); border-radius: 2px; padding: 0 1px; }
+    .sc-opt:hover {
+      background: var(--accent-dim);
+    }
 
-    .sc-empty, .sc-more {
+    .sc-opt mark {
+      background: rgba(37, 99, 235, .25);
+      color: var(--text);
+      border-radius: 2px;
+      padding: 0 1px;
+    }
+
+    .sc-empty,
+    .sc-more {
       padding: .5rem .85rem;
       font-size: 12px;
       color: var(--text-3);
     }
 
-    .sc-more { border-top: 1px solid var(--border); }
+    .sc-more {
+      border-top: 1px solid var(--border);
+    }
 
     /* ─── Stability bar ─── */
     .stab-bar-track {
@@ -644,9 +795,17 @@
       transition: width .8s ease;
     }
 
-    .stab-bar-fill.low-std    { background: var(--safe); }
-    .stab-bar-fill.medium-std { background: var(--warn); }
-    .stab-bar-fill.high-std   { background: var(--danger); }
+    .stab-bar-fill.low-std {
+      background: var(--safe);
+    }
+
+    .stab-bar-fill.medium-std {
+      background: var(--warn);
+    }
+
+    .stab-bar-fill.high-std {
+      background: var(--danger);
+    }
 
     /* ─── Disclaimer ─── */
     .disclaimer {
@@ -660,9 +819,19 @@
 
     /* ─── Mobile nav hide ─── */
     @media (max-width: 640px) {
-      .topbar { padding: 0 .75rem; }
-      .logo-sub, .topbar-divider, .topbar-nav { display: none; }
-      .user-name { display: none; }
+      .topbar {
+        padding: 0 .75rem;
+      }
+
+      .logo-sub,
+      .topbar-divider,
+      .topbar-nav {
+        display: none;
+      }
+
+      .user-name {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -706,10 +875,8 @@
       <!-- ── Result Panel ── -->
       {% if result %}
       {% set cls = 'danger' if result.risk_percent >= 50 else 'safe' %}
-      {% set std_cls = 'low-std' if result.perturb_std < 5 else ('medium-std' if result.perturb_std < 12 else 'high-std') %}
-      {% set std_bar = [result.perturb_std * 2, 100] | min %}
-
-      <div class="panel">
+      {% set std_cls = 'low-std' if result.perturb_std < 5 else ('medium-std' if result.perturb_std < 12 else 'high-std'
+        ) %} {% set std_bar=[result.perturb_std * 2, 100] | min %} <div class="panel">
         <div class="panel-header">
           <div class="panel-title">
             ผลการประเมินความเสี่ยง
@@ -726,7 +893,8 @@
             </div>
             <div class="result-text">
               <div class="result-verdict">
-                {% if cls == 'danger' %}นักศึกษามีความเสี่ยงสูงต่อการพ้นสภาพ{% else %}นักศึกษาอยู่ในเกณฑ์ปลอดภัย{% endif %}
+                {% if cls == 'danger' %}นักศึกษามีความเสี่ยงสูงต่อการพ้นสภาพ{% else %}นักศึกษาอยู่ในเกณฑ์ปลอดภัย{% endif
+                %}
               </div>
               <div class="result-sub">ผลจาก {{ result.n_perturbations + 1 }} การทำนาย · Perturbation Smoothing</div>
             </div>
@@ -779,189 +947,197 @@
           ผลการประเมินนี้เป็นเพียงการพยากรณ์จากโมเดล AI เพื่อสนับสนุนการตัดสินใจของอาจารย์ที่ปรึกษาเท่านั้น
           ไม่สามารถใช้แทนการตัดสินใจของมหาวิทยาลัยได้
         </div>
-      </div>
-      {% endif %}
+    </div>
+    {% endif %}
 
-      <!-- ── Input Form Panel ── -->
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">
-            กรอกข้อมูลนักศึกษา
-          </div>
+    <!-- ── Input Form Panel ── -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          กรอกข้อมูลนักศึกษา
         </div>
+      </div>
 
-        <div class="panel-body">
-          <form method="post" action="/predict" id="predict-form">
-            <div class="form-grid">
+      <div class="panel-body">
+        <form method="post" action="/predict" id="predict-form">
+          <div class="form-grid">
 
-              <!-- GPA ก่อนรับเข้า -->
-              <div class="field">
-                <label class="field-label" for="inp-gpa">
-                  คะแนนเฉลี่ยก่อนรับเข้า (GPA) <span class="req">*</span>
-                </label>
-                <input type="number" name="gpa" id="inp-gpa"
-                  min="0" max="4" step="0.01" placeholder="0.00 – 4.00"
-                  value="{{ form.gpa if form else '' }}" required>
-                <span class="field-hint">GPA จากสถาบันก่อนเข้าศึกษา (0.00 – 4.00)</span>
-              </div>
-
-              <!-- GPA ปัจจุบัน -->
-              <div class="field">
-                <label class="field-label" for="inp-gpa-current">
-                  GPA ปัจจุบัน <span class="req">*</span>
-                </label>
-                <input type="number" name="gpa_at_year" id="inp-gpa-current"
-                  min="0" max="4" step="0.01" placeholder="0.00 – 4.00"
-                  value="{{ form.gpa_at_year if form else '' }}" required>
-                <span class="field-hint">GPA สะสม ณ ปี/เทอมที่เลือก (0.00 – 4.00)</span>
-              </div>
-
-              <!-- ปี / เทอมปัจจุบัน -->
-              <div class="field">
-                <label class="field-label" for="inp-period">
-                  ปี / เทอมปัจจุบัน <span class="req">*</span>
-                </label>
-                <select name="period_label" id="inp-period" required>
-                  <option value="" disabled {% if not form %}selected{% endif %}>— เลือกปี / เทอม —</option>
-                  <option value="ปี 1 เทอม 1" {% if form and form.period_label=='ปี 1 เทอม 1' %}selected{% endif %}>ปี 1 เทอม 1</option>
-                  <option value="ปี 1 เทอม 2" {% if form and form.period_label=='ปี 1 เทอม 2' %}selected{% endif %}>ปี 1 เทอม 2</option>
-                  <option value="ปี 2 เทอม 1" {% if form and form.period_label=='ปี 2 เทอม 1' %}selected{% endif %}>ปี 2 เทอม 1</option>
-                  <option value="ปี 2 เทอม 2" {% if form and form.period_label=='ปี 2 เทอม 2' %}selected{% endif %}>ปี 2 เทอม 2</option>
-                  <option value="ปี 3 เทอม 1" {% if form and form.period_label=='ปี 3 เทอม 1' %}selected{% endif %}>ปี 3 เทอม 1</option>
-                  <option value="ปี 3 เทอม 2" {% if form and form.period_label=='ปี 3 เทอม 2' %}selected{% endif %}>ปี 3 เทอม 2</option>
-                  <option value="ปี 4 เทอม 1" {% if form and form.period_label=='ปี 4 เทอม 1' %}selected{% endif %}>ปี 4 เทอม 1</option>
-                  <option value="ปี 4 เทอม 2" {% if form and form.period_label=='ปี 4 เทอม 2' %}selected{% endif %}>ปี 4 เทอม 2</option>
-                </select>
-                <span class="field-hint">ระบุช่วงเวลาที่ GPA ปัจจุบันอ้างอิง</span>
-              </div>
-
-              <!-- วิธีรับเข้า -->
-              <div class="field">
-                <label class="field-label" for="inp-admission">
-                  วิธีรับเข้า <span class="req">*</span>
-                </label>
-                <select name="admission" id="inp-admission" required>
-                  <option value="" disabled {% if not form %}selected{% endif %}>— เลือกวิธีรับเข้า —</option>
-                  <option value="โควตา"      {% if form and form.admission=='โควตา'      %}selected{% endif %}>โควตา</option>
-                  <option value="สอบคัดเลือก" {% if form and form.admission=='สอบคัดเลือก' %}selected{% endif %}>สอบคัดเลือก</option>
-                  <option value="อื่นๆ"       {% if form and form.admission=='อื่นๆ'       %}selected{% endif %}>อื่นๆ</option>
-                </select>
-              </div>
-
-              <!-- วุฒิการศึกษา -->
-              <div class="field">
-                <label class="field-label" for="inp-degree">
-                  วุฒิการศึกษา <span class="req">*</span>
-                </label>
-                <select name="degree" id="inp-degree" required>
-                  <option value="" disabled {% if not form %}selected{% endif %}>— เลือกวุฒิ —</option>
-                  <option value="มัธยมศึกษาตอนปลาย (ม.6)" {% if form and form.degree=='มัธยมศึกษาตอนปลาย (ม.6)' %}selected{% endif %}>มัธยมศึกษาตอนปลาย (ม.6)</option>
-                  <option value="ปวช." {% if form and form.degree=='ปวช.' %}selected{% endif %}>ปวช.</option>
-                  <option value="ปวส." {% if form and form.degree=='ปวส.' %}selected{% endif %}>ปวส.</option>
-                </select>
-              </div>
-
-              <!-- โรงเรียน / สถาบัน -->
-              <div class="field full">
-                <label class="field-label">
-                  โรงเรียน / สถาบันที่จบมา <span class="req">*</span>
-                </label>
-                <div class="sc-wrap" id="sc-wrap">
-                  <input type="text" id="sc-search" autocomplete="off"
-                    placeholder="พิมพ์เพื่อค้นหาสถาบัน..."
-                    value="{{ form.school if form else '' }}">
-                  <div class="sc-drop" id="sc-drop"></div>
-                </div>
-                <input type="hidden" id="sc-val" name="school" value="{{ form.school if form else '' }}">
-                <span class="field-hint">หากไม่พบในรายการ ระบบจะประเมินเป็นสถาบันเอกชน</span>
-              </div>
-
+            <!-- GPA ก่อนรับเข้า -->
+            <div class="field">
+              <label class="field-label" for="inp-gpa">
+                คะแนนเฉลี่ยก่อนรับเข้า (GPA) <span class="req">*</span>
+              </label>
+              <input type="number" name="gpa" id="inp-gpa" min="0" max="4" step="0.01" placeholder="0.00 – 4.00"
+                value="{{ form.gpa if form else '' }}" required>
+              <span class="field-hint">GPA จากสถาบันก่อนเข้าศึกษา (0.00 – 4.00)</span>
             </div>
 
-            <button type="submit" class="btn-primary" id="btn-submit">
-              ประเมินความเสี่ยง
-            </button>
-          </form>
-        </div>
+            <!-- GPA ปัจจุบัน -->
+            <div class="field">
+              <label class="field-label" for="inp-gpa-current">
+                GPA ปัจจุบัน <span class="req">*</span>
+              </label>
+              <input type="number" name="gpa_at_year" id="inp-gpa-current" min="0" max="4" step="0.01"
+                placeholder="0.00 – 4.00" value="{{ form.gpa_at_year if form else '' }}" required>
+              <span class="field-hint">GPA สะสม ณ ปี/เทอมที่เลือก (0.00 – 4.00)</span>
+            </div>
+
+            <!-- ปี / เทอมปัจจุบัน -->
+            <div class="field">
+              <label class="field-label" for="inp-period">
+                ปี / เทอมปัจจุบัน <span class="req">*</span>
+              </label>
+              <select name="period_label" id="inp-period" required>
+                <option value="" disabled {% if not form %}selected{% endif %}>— เลือกปี / เทอม —</option>
+                <option value="ปี 1 เทอม 1" {% if form and form.period_label=='ปี 1 เทอม 1' %}selected{% endif %}>ปี 1
+                  เทอม 1</option>
+                <option value="ปี 1 เทอม 2" {% if form and form.period_label=='ปี 1 เทอม 2' %}selected{% endif %}>ปี 1
+                  เทอม 2</option>
+                <option value="ปี 2 เทอม 1" {% if form and form.period_label=='ปี 2 เทอม 1' %}selected{% endif %}>ปี 2
+                  เทอม 1</option>
+                <option value="ปี 2 เทอม 2" {% if form and form.period_label=='ปี 2 เทอม 2' %}selected{% endif %}>ปี 2
+                  เทอม 2</option>
+                <option value="ปี 3 เทอม 1" {% if form and form.period_label=='ปี 3 เทอม 1' %}selected{% endif %}>ปี 3
+                  เทอม 1</option>
+                <option value="ปี 3 เทอม 2" {% if form and form.period_label=='ปี 3 เทอม 2' %}selected{% endif %}>ปี 3
+                  เทอม 2</option>
+                <option value="ปี 4 เทอม 1" {% if form and form.period_label=='ปี 4 เทอม 1' %}selected{% endif %}>ปี 4
+                  เทอม 1</option>
+                <option value="ปี 4 เทอม 2" {% if form and form.period_label=='ปี 4 เทอม 2' %}selected{% endif %}>ปี 4
+                  เทอม 2</option>
+              </select>
+              <span class="field-hint">ระบุช่วงเวลาที่ GPA ปัจจุบันอ้างอิง</span>
+            </div>
+
+            <!-- วิธีรับเข้า -->
+            <div class="field">
+              <label class="field-label" for="inp-admission">
+                วิธีรับเข้า <span class="req">*</span>
+              </label>
+              <select name="admission" id="inp-admission" required>
+                <option value="" disabled {% if not form %}selected{% endif %}>— เลือกวิธีรับเข้า —</option>
+                <option value="โควตา" {% if form and form.admission=='โควตา' %}selected{% endif %}>โควตา</option>
+                <option value="สอบคัดเลือก" {% if form and form.admission=='สอบคัดเลือก' %}selected{% endif %}>
+                  สอบคัดเลือก</option>
+                <option value="อื่นๆ" {% if form and form.admission=='อื่นๆ' %}selected{% endif %}>อื่นๆ</option>
+              </select>
+            </div>
+
+            <!-- วุฒิการศึกษา -->
+            <div class="field">
+              <label class="field-label" for="inp-degree">
+                วุฒิการศึกษา <span class="req">*</span>
+              </label>
+              <select name="degree" id="inp-degree" required>
+                <option value="" disabled {% if not form %}selected{% endif %}>— เลือกวุฒิ —</option>
+                <option value="มัธยมศึกษาตอนปลาย (ม.6)" {% if form and form.degree=='มัธยมศึกษาตอนปลาย (ม.6)'
+                  %}selected{% endif %}>มัธยมศึกษาตอนปลาย (ม.6)</option>
+                <option value="ปวช." {% if form and form.degree=='ปวช.' %}selected{% endif %}>ปวช.</option>
+                <option value="ปวส." {% if form and form.degree=='ปวส.' %}selected{% endif %}>ปวส.</option>
+              </select>
+            </div>
+
+            <!-- โรงเรียน / สถาบัน -->
+            <div class="field full">
+              <label class="field-label">
+                โรงเรียน / สถาบันที่จบมา <span class="req">*</span>
+              </label>
+              <div class="sc-wrap" id="sc-wrap">
+                <input type="text" id="sc-search" autocomplete="off" placeholder="พิมพ์เพื่อค้นหาสถาบัน..."
+                  value="{{ form.school if form else '' }}">
+                <div class="sc-drop" id="sc-drop"></div>
+              </div>
+              <input type="hidden" id="sc-val" name="school" value="{{ form.school if form else '' }}">
+              <span class="field-hint">หากไม่พบในรายการ ระบบจะประเมินเป็นสถาบันเอกชน</span>
+            </div>
+
+          </div>
+
+          <button type="submit" class="btn-primary" id="btn-submit">
+            ประเมินความเสี่ยง
+          </button>
+        </form>
       </div>
+    </div>
 
-    </div><!-- /main-col -->
+  </div><!-- /main-col -->
 
-    <!-- ═══ Sidebar ═══ -->
-    <aside>
+  <!-- ═══ Sidebar ═══ -->
+  <aside>
 
-      <!-- System Status -->
-      <div class="panel sidebar-section">
-        <div class="panel-header">
-          <div class="panel-title">System Status</div>
-        </div>
-        <div class="panel-body" style="padding:.75rem 1.25rem;">
-          <table class="kv-table">
-            <tr>
-              <td class="kv-key"><span class="status-dot green"></span> Database</td>
-              <td class="kv-val ok">Online</td>
-            </tr>
-            <tr>
-              <td class="kv-key"><span class="status-dot green"></span> ML Model</td>
-              <td class="kv-val ok">Loaded</td>
-            </tr>
-            <tr>
-              <td class="kv-key"><span class="status-dot green"></span> API</td>
-              <td class="kv-val ok">v1.0</td>
-            </tr>
-          </table>
-        </div>
+    <!-- System Status -->
+    <div class="panel sidebar-section">
+      <div class="panel-header">
+        <div class="panel-title">System Status</div>
       </div>
-
-
-
-      <!-- Activity Log -->
-      <div class="panel sidebar-section">
-        <div class="panel-header">
-          <div class="panel-title">Activity Log</div>
-        </div>
-        <div class="panel-body" style="padding:.75rem 1.25rem;" id="activity-list">
-          <!-- filled by JS -->
-        </div>
+      <div class="panel-body" style="padding:.75rem 1.25rem;">
+        <table class="kv-table">
+          <tr>
+            <td class="kv-key"><span class="status-dot green"></span> Database</td>
+            <td class="kv-val ok">Online</td>
+          </tr>
+          <tr>
+            <td class="kv-key"><span class="status-dot green"></span> ML Model</td>
+            <td class="kv-val ok">Loaded</td>
+          </tr>
+          <tr>
+            <td class="kv-key"><span class="status-dot green"></span> API</td>
+            <td class="kv-val ok">v1.0</td>
+          </tr>
+        </table>
       </div>
+    </div>
 
-    </aside>
+
+
+    <!-- Activity Log -->
+    <div class="panel sidebar-section">
+      <div class="panel-header">
+        <div class="panel-title">Activity Log</div>
+      </div>
+      <div class="panel-body" style="padding:.75rem 1.25rem;" id="activity-list">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+  </aside>
   </div><!-- /workspace -->
 
   <script>
-  (function () {
-    /* ─── Theme ─── */
-    function applyTheme(t) {
-      document.documentElement.setAttribute('data-theme', t);
-      const label = document.getElementById('theme-label');
-      if (t === 'dark') { label.textContent = 'Light mode'; }
-      else              { label.textContent = 'Dark mode'; }
-      localStorage.setItem('theme', t);
-    }
+    (function () {
+      /* ─── Theme ─── */
+      function applyTheme(t) {
+        document.documentElement.setAttribute('data-theme', t);
+        const label = document.getElementById('theme-label');
+        if (t === 'dark') { label.textContent = 'Light mode'; }
+        else { label.textContent = 'Dark mode'; }
+        localStorage.setItem('theme', t);
+      }
 
-    window.toggleTheme = function () {
-      applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-    };
+      window.toggleTheme = function () {
+        applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+      };
 
-    applyTheme(localStorage.getItem('theme') || 'dark');
+      applyTheme(localStorage.getItem('theme') || 'dark');
 
-    /* ─── User avatar initials ─── */
-    const nameEl = document.querySelector('.user-name');
-    const avatarEl = document.getElementById('user-avatar');
-    if (nameEl && avatarEl) {
-      const n = nameEl.textContent.trim();
-      avatarEl.textContent = n ? n[0].toUpperCase() : '?';
-    }
+      /* ─── User avatar initials ─── */
+      const nameEl = document.querySelector('.user-name');
+      const avatarEl = document.getElementById('user-avatar');
+      if (nameEl && avatarEl) {
+        const n = nameEl.textContent.trim();
+        avatarEl.textContent = n ? n[0].toUpperCase() : '?';
+      }
 
-    /* ─── Tab click ─── */
-    window.setTab = function(el) {
-      document.querySelectorAll('.topbar-link').forEach(t => t.classList.remove('active'));
-      el.classList.add('active');
-    };
+      /* ─── Tab click ─── */
+      window.setTab = function (el) {
+        document.querySelectorAll('.topbar-link').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+      };
 
-    /* ─── Recent Activity ─── */
-    const CURRENT_USER = {{ user.email | tojson }};
-    const SESSION_USER_KEY     = 'ra_user';
+      /* ─── Recent Activity ─── */
+      const CURRENT_USER = {{ user.email | tojson
+    }};
+    const SESSION_USER_KEY = 'ra_user';
     const SESSION_ASSESSED_KEY = 'ra_assessed';
 
     const storedUser = sessionStorage.getItem(SESSION_USER_KEY);
@@ -974,10 +1150,10 @@
     if (hasResult) sessionStorage.setItem(SESSION_ASSESSED_KEY, Date.now().toString());
 
     function renderActivity() {
-      const list      = document.getElementById('activity-list');
+      const list = document.getElementById('activity-list');
       const assessedAt = sessionStorage.getItem(SESSION_ASSESSED_KEY);
-      const now        = new Date();
-      const timeStr    = now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
       let html = '';
 
       if (assessedAt) {
@@ -1007,24 +1183,24 @@
     renderActivity();
 
     /* ─── Searchable Combobox ─── */
-    const SCHOOLS  = {{ schools | tojson }};
+    const SCHOOLS = {{ schools | tojson }};
     const searchEl = document.getElementById('sc-search');
-    const dropEl   = document.getElementById('sc-drop');
-    const valEl    = document.getElementById('sc-val');
-    const wrapEl   = document.getElementById('sc-wrap');
+    const dropEl = document.getElementById('sc-drop');
+    const valEl = document.getElementById('sc-val');
+    const wrapEl = document.getElementById('sc-wrap');
 
-    function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
     function getPool() {
       const deg = document.getElementById('inp-degree').value;
       if (deg === 'มัธยมศึกษาตอนปลาย (ม.6)') return SCHOOLS.filter(s => !s.includes('วิทยาลัย'));
-      if (deg === 'ปวช.' || deg === 'ปวส.')    return SCHOOLS.filter(s =>  s.includes('วิทยาลัย'));
+      if (deg === 'ปวช.' || deg === 'ปวส.') return SCHOOLS.filter(s => s.includes('วิทยาลัย'));
       return SCHOOLS;
     }
 
     function renderDrop(q) {
-      const pool  = getPool();
-      const lq    = q.trim().toLowerCase();
+      const pool = getPool();
+      const lq = q.trim().toLowerCase();
       const matches = lq ? pool.filter(s => s.toLowerCase().includes(lq)) : pool;
       dropEl.innerHTML = '';
 
@@ -1040,7 +1216,7 @@
           d.className = 'sc-opt';
           if (lq) {
             const i = s.toLowerCase().indexOf(lq);
-            d.innerHTML = esc(s.slice(0,i)) + '<mark>' + esc(s.slice(i, i+q.trim().length)) + '</mark>' + esc(s.slice(i+q.trim().length));
+            d.innerHTML = esc(s.slice(0, i)) + '<mark>' + esc(s.slice(i, i + q.trim().length)) + '</mark>' + esc(s.slice(i + q.trim().length));
           } else {
             d.textContent = s;
           }
@@ -1071,7 +1247,7 @@
 
     searchEl.addEventListener('focus', () => renderDrop(searchEl.value));
     searchEl.addEventListener('input', () => { valEl.value = searchEl.value.trim(); renderDrop(searchEl.value); });
-    searchEl.addEventListener('blur',  () => {
+    searchEl.addEventListener('blur', () => {
       setTimeout(() => { dropEl.style.display = 'none'; }, 160);
       if (searchEl.value.trim()) valEl.value = searchEl.value.trim();
     });
@@ -1090,7 +1266,7 @@
       if (!wrapEl.contains(e.target)) dropEl.style.display = 'none';
     });
 
-  })();
+  }) ();
   </script>
 </body>
 
