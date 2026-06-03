@@ -46,7 +46,7 @@ PyJWT==2.12.1
 python-dateutil==2.9.0.post0
 python-multipart==0.0.26
 requests==2.33.1
-scikit-learn==1.8.0
+scikit-learn==1.6.1
 scipy==1.17.1
 six==1.17.0
 sklearn-compat==0.1.5
@@ -57,3 +57,4 @@ typing_extensions==4.15.0
 tzdata==2026.1
 urllib3==2.6.3
 uvicorn==0.46.0
+dill==0.3.9
