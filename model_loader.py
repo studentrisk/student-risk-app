@@ -1,4 +1,4 @@
-import dill
+import pickle
 import sys
 import glob
 import os
@@ -17,7 +17,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 class StudentRiskEncoder(BaseEstimator, TransformerMixin):
     """
-    Stub class — ต้องมีเพื่อให้ dill โหลด pkl ได้
+    Stub class — ต้องมีเพื่อให้ pickle โหลด pkl ได้
     (transform จริงอยู่ใน pkl แล้ว ชื่อ column จริงคือ 'GPA ปัจจุบัน' และ 'ปี/เทอม')
     """
     ADM_MAP = {"โควตา": 0, "สอบคัดเลือก": 1}
@@ -33,7 +33,7 @@ class StudentRiskEncoder(BaseEstimator, TransformerMixin):
         return X
 
 
-# ลงทะเบียน class ให้ dill หา __main__.StudentRiskEncoder ได้ตอน load
+# ลงทะเบียน class ให้ pickle หา __main__.StudentRiskEncoder ได้ตอน load
 sys.modules["__main__"].StudentRiskEncoder = StudentRiskEncoder
 
 # โหลดโมเดล — ใช้ไฟล์ .pkl แรกที่เจอใน folder models/
@@ -44,7 +44,7 @@ _model_path = _pkl_files[0]
 print(f"[model_loader] โหลดโมเดล: {_model_path}")
 
 with open(_model_path, "rb") as f:
-    pipeline = dill.load(f)
+    pipeline = pickle.load(f)
 
 # ป้องกันโมเดล (เช่น Random Forest) แตก Thread ไปแย่ง CPU กันเองจนค้าง
 if hasattr(pipeline, "steps"):
