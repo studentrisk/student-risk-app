@@ -4,494 +4,385 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- ป้องกัน browser เก็บ cache หน้า login ไว้ -->
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
-  <title>เข้าสู่ระบบ — ระบบประเมินความเสี่ยงการพ้นสภาพนักศึกษา</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>เข้าสู่ระบบ — Student Risk System</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    :root {
+      --bg:          #0b1120;
+      --surface:     #111827;
+      --surface-2:   #1a2236;
+      --border:      #1e2d45;
+      --border-2:    #253550;
+      --accent:      #2563eb;
+      --accent-dim:  rgba(37,99,235,.12);
+      --accent-glow: rgba(37,99,235,.22);
+      --danger:      #dc2626;
+      --danger-dim:  rgba(220,38,38,.10);
+      --safe:        #059669;
+      --text:        #e2e8f0;
+      --text-2:      #94a3b8;
+      --text-3:      #64748b;
     }
 
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Sarabun', sans-serif;
+      font-family: 'IBM Plex Sans Thai', sans-serif;
       min-height: 100vh;
-      background: linear-gradient(135deg, #e8f4f8 0%, #c8dff0 50%, #d6eaf8 100%);
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      font-size: 14px;
+    }
+
+    /* ── Brand bar ── */
+    .brand-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.75rem;
+    }
+
+    .logo-badge {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      border-radius: 7px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* Decorative background blobs */
-    body::before {
-      content: '';
-      position: fixed;
-      top: -120px;
-      left: -120px;
-      width: 400px;
-      height: 400px;
-      background: radial-gradient(circle, rgba(124, 92, 191, 0.15) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    body::after {
-      content: '';
-      position: fixed;
-      bottom: -100px;
-      right: -80px;
-      width: 360px;
-      height: 360px;
-      background: radial-gradient(circle, rgba(41, 128, 185, 0.12) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    /* ── Card ─────────────────────────────────────────────── */
-    .login-card {
-      background: #ffffff;
-      border-radius: 24px;
-      box-shadow:
-        0 8px 32px rgba(41, 128, 185, 0.12),
-        0 2px 8px rgba(0, 0, 0, 0.06);
-      padding: 2.8rem 2.4rem 2.4rem;
-      width: 100%;
-      max-width: 420px;
-      position: relative;
-      z-index: 1;
-      animation: slideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(24px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* ── Logo / Header ────────────────────────────────────── */
-    .logo {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .logo-icon {
-      width: 72px;
-      height: 72px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #2980b9 0%, #7c5cbf 100%);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      margin-bottom: 1rem;
-      box-shadow: 0 4px 16px rgba(124, 92, 191, 0.3);
-    }
-
-    .logo h1 {
-      font-size: 1.15rem;
-      color: #1a3a4a;
+      font-size: 13px;
       font-weight: 700;
-      line-height: 1.35;
+      color: #fff;
+      flex-shrink: 0;
     }
 
-    .logo p.sub {
-      font-size: 0.82rem;
-      color: #7f8c8d;
-      margin-top: 6px;
+    .brand-text { display: flex; flex-direction: column; line-height: 1.25; }
+    .brand-title { font-size: 13px; font-weight: 700; color: var(--text); }
+    .brand-sub   { font-size: 11px; color: var(--text-3); }
+
+    /* ── Card ── */
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem 1.75rem 1.5rem;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.4);
     }
 
-    /* ── Step indicator ───────────────────────────────────── */
+    .card-header { margin-bottom: 1.5rem; }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .card-sub { font-size: 12px; color: var(--text-3); }
+
+    /* ── Step indicator ── */
     .step-indicator {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 0;
-      margin-bottom: 1.8rem;
+      margin-bottom: 1.4rem;
     }
 
     .step-dot {
-      width: 28px;
-      height: 28px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.72rem;
+      font-size: 11px;
       font-weight: 700;
-      transition: all 0.3s ease;
+      flex-shrink: 0;
+      transition: all .2s;
     }
 
-    .step-dot.active {
-      background: linear-gradient(135deg, #2980b9, #7c5cbf);
-      color: white;
-      box-shadow: 0 2px 8px rgba(124, 92, 191, 0.4);
-    }
-
-    .step-dot.done {
-      background: #27ae60;
-      color: white;
-    }
-
-    .step-dot.inactive {
-      background: #e8edf2;
-      color: #a0aec0;
-    }
+    .step-dot.active   { background: var(--accent); color: #fff; }
+    .step-dot.done     { background: var(--safe);   color: #fff; }
+    .step-dot.inactive { background: var(--border); color: var(--text-3); }
 
     .step-line {
-      width: 48px;
-      height: 2px;
-      background: #e8edf2;
-      transition: background 0.3s ease;
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      margin: 0 8px;
+      transition: background .2s;
     }
 
-    .step-line.done {
-      background: #27ae60;
-    }
+    .step-line.done { background: var(--safe); }
 
-    /* ── Step label ───────────────────────────────────────── */
-    .step-label {
-      text-align: center;
-      margin-bottom: 1.4rem;
-    }
+    /* ── Step label ── */
+    .step-label { margin-bottom: 1.1rem; }
 
     .step-label h2 {
-      font-size: 1rem;
+      font-size: 14px;
       font-weight: 600;
-      color: #1a3a4a;
+      color: var(--text);
+      margin-bottom: 3px;
     }
 
-    .step-label p {
-      font-size: 0.8rem;
-      color: #7f8c8d;
-      margin-top: 4px;
-    }
+    .step-label p { font-size: 12px; color: var(--text-3); }
 
-    /* ── Field ────────────────────────────────────────────── */
-    .field {
-      margin-bottom: 1.2rem;
-    }
+    /* ── Field ── */
+    .field { margin-bottom: .9rem; }
 
     .field label {
       display: block;
-      font-size: 0.82rem;
+      font-size: 12px;
       font-weight: 600;
-      color: #2c3e50;
-      margin-bottom: 6px;
+      color: var(--text-2);
+      margin-bottom: 5px;
     }
 
     .field input {
       width: 100%;
-      padding: 0.8rem 1rem;
-      border: 1.5px solid #dce6ef;
-      border-radius: 12px;
-      font-size: 0.95rem;
+      height: 38px;
+      padding: 0 .75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13.5px;
       font-family: inherit;
-      color: #1a3a4a;
-      background: #f8fbfd;
-      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      color: var(--text);
+      background: var(--surface-2);
       outline: none;
+      transition: border-color .15s, box-shadow .15s;
     }
 
     .field input:focus {
-      border-color: #7c5cbf;
-      background: #ffffff;
-      box-shadow: 0 0 0 3px rgba(124, 92, 191, 0.12);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
     }
 
-    .field input::placeholder {
-      color: #b0bec5;
-    }
+    .field input::placeholder { color: var(--text-3); }
 
-    /* ── Steps container ──────────────────────────────────── */
-    .step-panel {
-      display: none;
-      animation: fadeStep 0.3s ease both;
-    }
+    /* ── Step panels ── */
+    .step-panel        { display: none; }
+    .step-panel.active { display: block; }
 
-    .step-panel.active {
-      display: block;
-    }
-
-    @keyframes fadeStep {
-      from {
-        opacity: 0;
-        transform: translateX(16px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    /* ── Buttons ──────────────────────────────────────────── */
+    /* ── Buttons ── */
     .btn-primary {
       width: 100%;
-      padding: 0.9rem;
-      background: linear-gradient(135deg, #2980b9 0%, #7c5cbf 100%);
-      color: white;
+      height: 38px;
+      background: var(--accent);
+      color: #fff;
       border: none;
-      border-radius: 12px;
-      font-size: 1rem;
+      border-radius: 8px;
+      font-size: 13.5px;
       font-family: inherit;
       font-weight: 600;
       cursor: pointer;
-      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
-      box-shadow: 0 4px 14px rgba(124, 92, 191, 0.35);
-      letter-spacing: 0.01em;
+      transition: opacity .15s, box-shadow .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
 
-    .btn-primary:hover {
-      opacity: 0.92;
-      box-shadow: 0 6px 18px rgba(124, 92, 191, 0.45);
-    }
-
-    .btn-primary:active {
-      transform: scale(0.985);
-    }
+    .btn-primary:hover  { opacity: .9; box-shadow: 0 4px 14px var(--accent-glow); }
+    .btn-primary:active { transform: scale(.99); }
 
     .btn-back {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
       background: none;
       border: none;
-      color: #7c5cbf;
-      font-size: 0.82rem;
+      color: var(--text-3);
+      font-size: 12px;
       font-family: inherit;
       font-weight: 500;
       cursor: pointer;
       padding: 0;
-      margin-bottom: 0.6rem;
-      transition: opacity 0.2s;
+      margin-bottom: .7rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: color .15s;
     }
 
-    .btn-back:hover {
-      opacity: 0.7;
+    .btn-back:hover { color: var(--text); }
+
+    .btn-forgot {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 0;
+      transition: opacity .15s;
     }
 
-    /* ── Email display pill ───────────────────────────────── */
+    .btn-forgot:hover { opacity: .75; }
+
+    .btn-secondary {
+      flex: 1;
+      height: 38px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      font-weight: 500;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+    }
+
+    .btn-secondary:hover { border-color: var(--border-2); color: var(--text); }
+
+    .btn-row { display: flex; gap: .6rem; }
+
+    /* ── Email pill ── */
     .email-pill {
       display: flex;
       align-items: center;
       gap: 8px;
-      background: #f0f6fb;
-      border: 1.5px solid #dce6ef;
-      border-radius: 10px;
-      padding: 0.6rem 0.9rem;
-      margin-bottom: 1.2rem;
-      font-size: 0.85rem;
-      color: #1a3a4a;
-      font-weight: 500;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .5rem .75rem;
+      margin-bottom: .9rem;
+      font-size: 13px;
+      color: var(--text);
     }
 
     .email-pill .avatar {
-      width: 28px;
-      height: 28px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #2980b9, #7c5cbf);
-      color: white;
+      background: var(--accent);
+      color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.75rem;
+      font-size: 11px;
       font-weight: 700;
       flex-shrink: 0;
     }
 
-    /* ── Error message ────────────────────────────────────── */
+    /* ── Error ── */
     .error-msg {
       display: none;
-      background: #fdecea;
-      border: 1px solid #f5c6cb;
-      color: #c0392b;
-      border-radius: 10px;
-      padding: 0.6rem 0.9rem;
-      font-size: 0.82rem;
-      margin-bottom: 1rem;
-      text-align: center;
+      background: var(--danger-dim);
+      border: 1px solid rgba(220,38,38,.25);
+      color: #f87171;
+      border-radius: 8px;
+      padding: .5rem .75rem;
+      font-size: 12px;
+      margin-bottom: .75rem;
     }
 
-    .error-msg.show {
-      display: block;
-      animation: fadeStep 0.25s ease both;
-    }
+    .error-msg.show { display: block; }
 
     .error-retry-btn {
       display: none;
       width: 100%;
-      margin-top: -.4rem;
-      margin-bottom: 1rem;
-      padding: .55rem;
+      margin-top: -.25rem;
+      margin-bottom: .75rem;
+      height: 34px;
       background: none;
-      border: 1.5px solid #c0392b;
-      color: #c0392b;
-      border-radius: 10px;
-      font-size: .82rem;
+      border: 1px solid rgba(220,38,38,.35);
+      color: #f87171;
+      border-radius: 8px;
+      font-size: 12px;
       font-family: inherit;
       font-weight: 600;
       cursor: pointer;
-      transition: background .2s, color .2s;
-      animation: fadeStep 0.25s ease both;
+      transition: background .15s;
     }
 
-    .error-retry-btn:hover {
-      background: #fdecea;
-    }
+    .error-retry-btn:hover { background: var(--danger-dim); }
 
-    /* ── Forgot password panel ───────────────────────────── */
-    .btn-forgot {
-      background: none;
-      border: none;
-      color: #7c5cbf;
-      font-size: 0.8rem;
-      font-family: inherit;
-      cursor: pointer;
-      padding: 0;
-      text-decoration: underline;
-      text-underline-offset: 2px;
-      transition: opacity 0.2s;
-    }
-
-    .btn-forgot:hover {
-      opacity: 0.7;
-    }
-
-    .fp-link-row {
-      display: flex;
-      justify-content: flex-start;
-      margin-bottom: 0.8rem;
-    }
+    /* ── Forgot password ── */
+    .fp-link-row { margin-bottom: .75rem; }
 
     .fp-desc {
-      font-size: 0.82rem;
-      color: #7f8c8d;
-      margin-bottom: 1rem;
+      font-size: 12px;
+      color: var(--text-3);
+      margin-bottom: .75rem;
       line-height: 1.55;
     }
 
     .fp-email-box {
-      background: #f0f6fb;
-      border: 1.5px solid #dce6ef;
-      border-radius: 10px;
-      padding: 0.65rem 1rem;
-      font-size: 0.88rem;
-      color: #1a3a4a;
-      font-weight: 500;
-      margin-bottom: 1.2rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .55rem .75rem;
+      font-size: 13px;
+      color: var(--text-2);
+      margin-bottom: .9rem;
       word-break: break-all;
     }
 
-    .btn-row {
-      display: flex;
-      gap: 0.6rem;
-    }
-
-    .btn-secondary {
-      flex: 1;
-      padding: 0.8rem;
-      background: none;
-      border: 1.5px solid #dce6ef;
-      border-radius: 12px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      font-weight: 600;
-      color: #4a5568;
-      cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
-    }
-
-    .btn-secondary:hover {
-      border-color: #7c5cbf;
-      color: #7c5cbf;
-    }
-
-    .fp-success-wrap {
-      text-align: center;
-      padding: 1rem 0 0.5rem;
-    }
+    .fp-success-wrap { text-align: center; padding: .75rem 0 .5rem; }
 
     .fp-success-icon {
-      font-size: 2.8rem;
-      margin-bottom: 0.6rem;
+      font-size: 24px;
+      color: var(--safe);
+      margin-bottom: .5rem;
     }
 
     .fp-success-msg {
-      font-size: 0.9rem;
+      font-size: 14px;
       font-weight: 700;
-      color: #1e8449;
+      color: var(--safe);
+      margin-bottom: 4px;
     }
 
-    .fp-success-sub {
-      font-size: 0.78rem;
-      color: #7f8c8d;
-      margin-top: 0.3rem;
-      line-height: 1.5;
-    }
+    .fp-success-sub { font-size: 12px; color: var(--text-3); line-height: 1.55; }
 
-    /* ── Loading spinner ──────────────────────────────────── */
+    /* ── Spinner ── */
     .spinner {
       display: none;
-      width: 20px;
-      height: 20px;
-      border: 2px solid rgba(255, 255, 255, 0.4);
-      border-top-color: white;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,.35);
+      border-top-color: #fff;
       border-radius: 50%;
-      animation: spin 0.65s linear infinite;
-      margin: 0 auto;
+      animation: spin .65s linear infinite;
     }
 
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .btn-primary.loading .btn-text {
-      display: none;
-    }
+    .btn-primary.loading .btn-text { display: none; }
+    .btn-primary.loading .spinner  { display: block; }
 
-    .btn-primary.loading .spinner {
-      display: block;
-    }
-
-    /* ── Footer ───────────────────────────────────────────── */
+    /* ── Footer ── */
     .footer-note {
+      font-size: 11px;
+      color: var(--text-3);
       text-align: center;
-      font-size: 0.75rem;
-      color: #a0aec0;
-      margin-top: 1.4rem;
+      margin-top: 1.25rem;
     }
 
-    /* ─────────────────── Firebase UI Override ─────────────── */
-    /* Hide the default FirebaseUI widget; we drive it ourselves */
-    #firebaseui-auth-container {
-      display: none !important;
-    }
+    #firebaseui-auth-container { display: none !important; }
   </style>
 </head>
 
 <body>
+  <div class="brand-bar">
+    <div class="logo-badge">RS</div>
+    <div class="brand-text">
+      <span class="brand-title">Student Risk System</span>
+      <span class="brand-sub">มทร.กรุงเทพ — ระบบประเมินความเสี่ยงนักศึกษา</span>
+    </div>
+  </div>
+
   <div class="login-card">
 
-    <!-- Header / Logo -->
-    <div class="logo">
-      <div class="logo-icon">🎓</div>
-      <h1>ระบบประเมินความเสี่ยงการพ้นสภาพนักศึกษา</h1>
-      <p class="sub">สำหรับอาจารย์ที่ปรึกษาเท่านั้น</p>
+    <div class="card-header">
+      <div class="card-title">เข้าสู่ระบบ</div>
+      <div class="card-sub">สำหรับอาจารย์ที่ปรึกษาและบุคลากรที่ได้รับอนุญาตเท่านั้น</div>
     </div>
 
     <!-- Step indicator -->
@@ -505,7 +396,7 @@
     <div class="error-msg" id="error-msg"></div>
     <button class="error-retry-btn" id="error-retry-btn" onclick="goToStep1()">← ลองอีเมลอื่น</button>
 
-    <!-- ══ Step 1: Email ══ -->
+    <!-- Step 1: Email -->
     <div class="step-panel active" id="step-1">
       <div class="step-label">
         <h2>ยืนยันอีเมล</h2>
@@ -518,12 +409,12 @@
       </div>
 
       <button class="btn-primary" id="btn-next" onclick="goToStep2()">
-        <span class="btn-text">ถัดไป →</span>
+        <span class="btn-text">ถัดไป</span>
         <span class="spinner"></span>
       </button>
     </div>
 
-    <!-- ══ Step 2: Password ══ -->
+    <!-- Step 2: Password -->
     <div class="step-panel" id="step-2">
       <div class="step-label">
         <h2>ใส่รหัสผ่าน</h2>
@@ -552,14 +443,13 @@
       </button>
     </div>
 
-    <!-- ══ Forgot Password Panel ══ -->
+    <!-- Forgot Password Panel -->
     <div class="step-panel" id="step-fp">
       <div class="step-label">
         <h2>รีเซ็ตรหัสผ่าน</h2>
         <p>ระบบจะส่งลิงก์ตั้งรหัสผ่านใหม่ไปยังอีเมลของคุณ</p>
       </div>
 
-      <!-- Normal state -->
       <div id="fp-form">
         <p class="fp-desc">ส่งคำแนะนำไปยังอีเมลนี้เพื่ออธิบายวิธีตั้งรหัสผ่านใหม่</p>
         <div class="fp-email-box" id="fp-email-display">-</div>
@@ -572,21 +462,18 @@
         </div>
       </div>
 
-      <!-- Success state -->
       <div id="fp-success" style="display:none">
         <div class="fp-success-wrap">
-          <div class="fp-success-icon">✉️</div>
-          <div class="fp-success-msg">ส่งลิงก์เรียบร้อยแล้ว!</div>
+          <div class="fp-success-icon">&#10003;</div>
+          <div class="fp-success-msg">ส่งลิงก์เรียบร้อยแล้ว</div>
           <div class="fp-success-sub">ตรวจสอบกล่องจดหมายของคุณ<br>และกดลิงก์เพื่อตั้งรหัสผ่านใหม่</div>
         </div>
-        <button class="btn-primary" style="margin-top:1.2rem"
-          onclick="cancelForgotPassword()">กลับไปเข้าสู่ระบบ</button>
+        <button class="btn-primary" style="margin-top:1rem" onclick="cancelForgotPassword()">กลับไปเข้าสู่ระบบ</button>
       </div>
     </div>
 
     <p class="footer-note">ระบบนี้สงวนสิทธิ์เฉพาะบุคลากรที่ได้รับอนุญาต</p>
 
-    <!-- FirebaseUI anchor (hidden — we invoke auth directly) -->
     <div id="firebaseui-auth-container"></div>
   </div>
 
@@ -607,9 +494,7 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    // ── Sign out Firebase เมื่อโหลดหน้า login (ล้าง state หลัง logout) ──
-    // ทำให้แน่ใจว่า Firebase client-side session ถูก clear ทุกครั้ง
-    firebase.auth().signOut().catch(function() { /* ไม่ต้องทำอะไรถ้า error */ });
+    firebase.auth().signOut().catch(function() {});
 
     // ── Helper: show / hide error ──────────────────────────────────────
     function showError(msg, showRetry) {
@@ -625,7 +510,6 @@
       document.getElementById('error-retry-btn').style.display = 'none';
     }
 
-    // ── ไม่พบบัญชี: แสดง error แล้วตีกลับ step 1 ────────────────────────
     function goToStep1NotFound() {
       showError('ไม่พบบัญชีอีเมลนี้ในระบบ — กรุณาตรวจสอบและกรอกอีเมลใหม่', true);
       setTimeout(function () {
@@ -643,7 +527,6 @@
       }, 1800);
     }
 
-    // ── Helper: loading state ──────────────────────────────────────────
     function setLoading(btnId, on) {
       document.getElementById(btnId).classList.toggle('loading', on);
     }
@@ -653,13 +536,10 @@
       clearError();
       document.getElementById('step-1').classList.add('active');
       document.getElementById('step-2').classList.remove('active');
-
-      // Reset indicators
       document.getElementById('dot-1').className = 'step-dot active';
       document.getElementById('dot-1').textContent = '1';
       document.getElementById('dot-2').className = 'step-dot inactive';
       document.getElementById('line-1').className = 'step-line';
-
       document.getElementById('password-input').value = '';
       document.getElementById('email-input').style.borderColor = '';
       document.getElementById('email-input').focus();
@@ -680,28 +560,21 @@
         return;
       }
 
-      // Populate step-2 email display
       document.getElementById('email-display').textContent = email;
-      const initial = email[0].toUpperCase();
-      document.getElementById('email-avatar').textContent = initial;
-
-      // Switch panels
+      document.getElementById('email-avatar').textContent = email[0].toUpperCase();
       document.getElementById('step-1').classList.remove('active');
       document.getElementById('step-2').classList.add('active');
-
-      // Update indicators
       document.getElementById('dot-1').className = 'step-dot done';
       document.getElementById('dot-1').textContent = '✓';
       document.getElementById('line-1').className = 'step-line done';
       document.getElementById('dot-2').className = 'step-dot active';
-
       setTimeout(() => document.getElementById('password-input').focus(), 50);
     }
 
-    // ── Sign In (Firebase Email/Password) ──────────────────────────────
+    // ── Sign In ────────────────────────────────────────────────────────
     function doSignIn() {
       clearError();
-      const email = document.getElementById('email-input').value.trim();
+      const email    = document.getElementById('email-input').value.trim();
       const password = document.getElementById('password-input').value;
 
       if (!password) {
@@ -714,9 +587,7 @@
 
       firebase.auth()
         .signInWithEmailAndPassword(email, password)
-        .then(function (cred) {
-          return cred.user.getIdToken();
-        })
+        .then(function (cred) { return cred.user.getIdToken(); })
         .then(function (token) {
           document.cookie = 'session=' + token + '; path=/; max-age=3600';
           window.location.href = '/dashboard';
@@ -727,10 +598,8 @@
           if (code === 'auth/wrong-password') {
             showError('รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่');
           } else if (code === 'auth/user-not-found' || code === 'auth/invalid-email') {
-            // อีเมลไม่มีในระบบ → ตีกลับ step 1
             goToStep1NotFound();
           } else if (code === 'auth/invalid-credential') {
-            // Firebase v10 รวม user-not-found + wrong-password ไว้ใน code เดียว
             showError('อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบ', true);
           } else if (code === 'auth/too-many-requests') {
             showError('ลองเข้าสู่ระบบบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่');
@@ -791,42 +660,24 @@
       if (e.key === 'Enter') doSignIn();
     });
 
-    // ── Reset ฟอร์มกลับ Step 1 ทุกครั้งที่หน้า login โหลดขึ้นมา ─────────
-    // ใช้ pageshow แทน load เพราะมัน fire ทั้งตอนโหลดปกติ และตอน
-    // browser restore หน้าจาก bfcache (กดปุ่มย้อนกลับ) ซึ่งเป็นต้นเหตุ
-    // ที่ทำให้เห็นอีเมล/รหัสผ่านของผู้ใช้คนก่อน
+    // ── Reset form on pageshow (handles bfcache) ───────────────────────
     window.addEventListener('pageshow', function (e) {
-      // ล้าง Firebase auth state ฝั่ง client ทุกครั้ง (ทั้งโหลดปกติ + bfcache)
-      firebase.auth().signOut().catch(function () { });
-
-      // ล้างข้อมูลในฟิลด์ทั้งหมด
+      firebase.auth().signOut().catch(function () {});
       document.getElementById('email-input').value = '';
       document.getElementById('password-input').value = '';
       document.getElementById('email-input').style.borderColor = '';
-
-      // Reset กลับ Step 1 เสมอ
       clearError();
       document.getElementById('step-1').classList.add('active');
       document.getElementById('step-2').classList.remove('active');
       document.getElementById('step-fp').classList.remove('active');
-
-      // Reset step indicators
       document.getElementById('dot-1').className = 'step-dot active';
       document.getElementById('dot-1').textContent = '1';
       document.getElementById('dot-2').className = 'step-dot inactive';
       document.getElementById('line-1').className = 'step-line';
-
-      // ป้องกัน browser กด Back มาที่หน้านี้อีก (ถ้ามาจาก bfcache)
-      // ให้ replace history entry ด้วยหน้า login ปกติ
       if (e.persisted) {
-        // หน้านี้ถูก restore จาก bfcache → แทนที่ history entry เดิม
         window.history.replaceState(null, '', window.location.href);
       }
-
-      // Focus ที่ช่องอีเมลเสมอ
-      setTimeout(function () {
-        document.getElementById('email-input').focus();
-      }, 50);
+      setTimeout(function () { document.getElementById('email-input').focus(); }, 50);
     });
   </script>
 </body>
