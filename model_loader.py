@@ -12,6 +12,8 @@ os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
+os.environ["LOKY_MAX_CPU_COUNT"] = "1"
+os.environ["JOBLIB_MULTIPROCESSING"] = "0"
 
 # 2. คลาส StudentRiskEncoder ฉบับสมบูรณ์
 class StudentRiskEncoder(BaseEstimator, TransformerMixin):
