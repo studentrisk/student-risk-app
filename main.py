@@ -93,7 +93,7 @@ PERIOD_MAP = {
 }
 
 @app.post("/predict", response_class=HTMLResponse)
-async def predict(
+def predict(
     request: Request,
     gpa: float = Form(...),
     admission: str = Form(...),
