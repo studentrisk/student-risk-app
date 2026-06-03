@@ -1,4 +1,9 @@
 import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
 import json
 import firebase_admin
 from firebase_admin import credentials, auth
@@ -88,7 +93,7 @@ PERIOD_MAP = {
 }
 
 @app.post("/predict", response_class=HTMLResponse)
-def predict(
+async def predict(
     request: Request,
     gpa: float = Form(...),
     admission: str = Form(...),
