@@ -1,9 +1,9 @@
-import pickle
+import os
 import sys
 import glob
-import os
+import pickle
 
-# จำกัดจำนวน Thread เพื่อไม่ให้ Render Server ค้าง (503 Service Unavailable)
+# 1. จำกัดจำนวน Thread เพื่อไม่ให้ Render/Hugging Face Server ค้าง
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
@@ -14,29 +14,31 @@ import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
-
+# 2. คลาส StudentRiskEncoder ฉบับสมบูรณ์ (Pickle จะมาเรียกใช้ตัวนี้เพื่อแปลงค่า)
 class StudentRiskEncoder(BaseEstimator, TransformerMixin):
-    """
-    Stub class — ต้องมีเพื่อให้ pickle โหลด pkl ได้
-    (transform จริงอยู่ใน pkl แล้ว ชื่อ column จริงคือ 'GPA ปัจจุบัน' และ 'ปี/เทอม')
-    """
-    ADM_MAP = {"โควตา": 0, "สอบคัดเลือก": 1}
-    DEG_MAP = {"ปวช.": 0, "มัธยมศึกษาตอนปลาย (ม.6)": 0, "ปวส.": 1}
-
     def __init__(self, school_lookup=None):
-        self.school_lookup = school_lookup or {}
+        self.school_lookup = school_lookup if school_lookup is not None else {}
+        # แมปค่าให้ตรงกับ Colab ฉบับ 6 Features
+        self.ADM_MAP = {'โควตา': 1, 'สอบคัดเลือก': 2, 'อื่นๆ': 0}
+        self.DEG_MAP = {'ปวช.': 1, 'มัธยมศึกษาตอนปลาย (ม.6)': 2, 'ปวส.': 3}
 
     def fit(self, X, y=None):
         return self
 
     def transform(self, X):
-        return X
+        X_encoded = X.copy()
+        if 'วิธีรับเข้า' in X_encoded.columns:
+            X_encoded['วิธีรับเข้า'] = X_encoded['วิธีรับเข้า'].map(self.ADM_MAP).fillna(0)
+        if 'วุฒิ' in X_encoded.columns:
+            X_encoded['วุฒิ'] = X_encoded['วุฒิ'].map(self.DEG_MAP).fillna(0)
+        if 'จบการศึกษาจาก' in X_encoded.columns:
+            X_encoded['จบการศึกษาจาก'] = X_encoded['จบการศึกษาจาก'].map(self.school_lookup).fillna(0)
+        return X_encoded
 
-
-# ลงทะเบียน class ให้ pickle หา __main__.StudentRiskEncoder ได้ตอน load
+# 3. หลอก Pickle ให้มองเห็นคลาสนี้ใน __main__
 sys.modules["__main__"].StudentRiskEncoder = StudentRiskEncoder
 
-# โหลดโมเดล — ใช้ไฟล์ .pkl แรกที่เจอใน folder models/
+# 4. โหลดโมเดล — ใช้ไฟล์ .pkl แรกที่เจอใน folder models/
 _pkl_files = sorted(glob.glob(os.path.join("models", "*.pkl")))
 if not _pkl_files:
     raise FileNotFoundError("ไม่พบไฟล์ .pkl ใน folder models/ กรุณาวางไฟล์โมเดลไว้ใน folder นั้น")
@@ -52,54 +54,37 @@ if hasattr(pipeline, "steps"):
     if hasattr(model_step, "n_jobs"):
         model_step.n_jobs = 1
 
-# ──────────────────────────────────────────────────────────────────────────────
-# PATCH: inject pd และ np เข้า globals ของ transform จริงใน pkl
-# (Colab บันทึก transform โดยอ้างอิง pd/np จาก namespace ที่รัน แต่ไม่ได้ bundle ไว้)
-# ──────────────────────────────────────────────────────────────────────────────
-try:
-    enc = pipeline.named_steps["encoder"]
-    _raw_t     = type(enc).__dict__["transform"]
-    _inner1    = _raw_t.__closure__[0].cell_contents
-    _real_fn   = _inner1.__closure__[0].cell_contents
-    _real_fn.__globals__["pd"] = pd
-    _real_fn.__globals__["np"] = np
-except Exception:
-    pass   # ถ้า pkl เวอร์ชันอื่นไม่ต้อง patch ก็ผ่านไป
-
-
+# 5. ฟังก์ชันแพ็กข้อมูลและประเมินผล
 def predict_risk_with_perturbation(
     gpa: float,
     admission: str,
     degree: str,
     school: str,
-    study_year: int = 1,       # ส่งเป็น 'ปี/เทอม' เข้าโมเดล
-    gpa_at_year: float = 0.0,  # ส่งเป็น 'GPA ปัจจุบัน' เข้าโมเดล
+    study_year: int = 1,
+    gpa_at_year: float = 0.0,
     n_perturbations: int = 30,
     gpa_noise_std: float = 0.05,
 ) -> dict:
-    """
-    Perturbation-based Smoothing
-    ────────────────────────────
-    สร้าง n_perturbations ตัวอย่างโดยบวก Gaussian noise ที่ GPA ก่อนรับเข้า
-    แล้วเฉลี่ยความน่าจะเป็นเพื่อลดการแกว่งของผลลัพธ์
-    """
+    
     rng = np.random.default_rng(seed=42)
     noise = rng.normal(0.0, gpa_noise_std, size=n_perturbations)
     gpa_values = np.clip(np.concatenate([[gpa], gpa + noise]), 0.0, 4.0)
 
+    # 🎯 ชื่อคอลัมน์ภาษาไทย 6 ตัว ตรงตามที่ AI ถูกสอนมาเป๊ะๆ 100%
     rows = [
         {
             "คะแนนเฉลี่ยก่อนรับเข้า": float(g),
-            "วิธีรับเข้า":             admission,
+            "วิธีรับเข้า":            admission,
             "วุฒิ":                    degree,
             "จบการศึกษาจาก":           school,
-            "ปี/เทอม":                 study_year,   # ← ชื่อจริงใน pkl
-            "GPA ปัจจุบัน":            gpa_at_year,  # ← ชื่อจริงใน pkl
+            "GPA ปัจจุบัน":            gpa_at_year,
+            "ปี/เทอม":                study_year,
         }
         for g in gpa_values
     ]
     X_batch = pd.DataFrame(rows)
 
+    # ส่งเข้าท่อ Pipeline (มันจะวิ่งผ่าน transform ด้านบน แล้วไปเข้าโมเดลเอง)
     probs       = pipeline.predict_proba(X_batch)
     mean_probs  = probs.mean(axis=0)
     risk_mean   = float(mean_probs[0])
@@ -124,7 +109,7 @@ def predict_risk_with_perturbation(
         "n_perturbations": n_perturbations,
     }
 
-
+# 6. ฟังก์ชันดึงรายชื่อโรงเรียน
 def get_school_list() -> list:
     encoder = pipeline.named_steps["encoder"]
     return sorted(encoder.school_lookup.keys())
