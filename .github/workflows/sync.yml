@@ -17,6 +17,9 @@ jobs:
           git branch -m main
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
+          git lfs install
+          git lfs track "*.pkl"
+          git add .gitattributes
           git add .
           git commit -m "Fresh deploy to Hugging Face"
           git push --force https://StudentRisk:${HF_TOKEN}@huggingface.co/spaces/StudentRisk/student-risk-app main
