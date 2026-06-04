@@ -9,6 +9,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
     rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     /* ─── Design Tokens ─── */
     :root {
@@ -817,6 +818,97 @@
       line-height: 1.5;
     }
 
+    /* ─── History Log Table ─── */
+    .log-table-wrap {
+      overflow-x: auto;
+    }
+
+    .log-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+
+    .log-table th {
+      padding: .5rem .75rem;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-3);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .log-table td {
+      padding: .55rem .75rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-2);
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    .log-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .log-table tr:hover td {
+      background: var(--accent-dim);
+    }
+
+    .log-table .td-risk {
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 700;
+    }
+
+    .log-table .td-risk.danger {
+      color: var(--danger);
+    }
+
+    .log-table .td-risk.safe {
+      color: var(--safe);
+    }
+
+    .log-empty {
+      padding: 1.5rem;
+      text-align: center;
+      color: var(--text-3);
+      font-size: 13px;
+    }
+
+    /* ─── Chart Panel ─── */
+    .chart-container {
+      position: relative;
+      height: 220px;
+    }
+
+    /* ─── Panel header action buttons ─── */
+    .panel-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-reset {
+      padding: 4px 11px;
+      border-radius: 6px;
+      border: 1px solid rgba(220, 38, 38, .35);
+      background: var(--danger-dim);
+      color: var(--danger);
+      font-size: 11.5px;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-reset:hover {
+      background: rgba(220, 38, 38, .2);
+      border-color: var(--danger);
+    }
+
     /* ─── Mobile nav hide ─── */
     @media (max-width: 640px) {
       .topbar {
@@ -873,7 +965,7 @@
       {% if result %}
       {% set cls = 'danger' if result.risk_percent >= 50 else 'safe' %}
       {% set std_cls = 'low-std' if result.perturb_std < 5 else ('medium-std' if result.perturb_std < 12 else 'high-std'
-        ) %} {% set std_bar=[result.perturb_std * 2, 100] | min %} <div class="panel">
+        ) %} {% set std_bar=[result.perturb_std * 2, 100] | min %} <div class="panel" id="result-panel">
         <div class="panel-header">
           <div class="panel-title">
             ผลการประเมินความเสี่ยง
@@ -946,6 +1038,49 @@
         </div>
     </div>
     {% endif %}
+
+    <!-- ── History Log + Chart Panel ── -->
+    <div class="panel" id="log-panel">
+      <div class="panel-header">
+        <div class="panel-title">ประวัติการประเมิน (นักศึกษาปัจจุบัน)</div>
+        <div class="panel-actions">
+          <span id="log-count-badge" style="font-size:11px;color:var(--text-3);"></span>
+          <button class="btn-reset" id="btn-reset" onclick="resetLog()"
+            title="เคลียร์ข้อมูลทั้งหมดเพื่อเริ่มนักศึกษาใหม่">
+            ↺ Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="panel-body" id="chart-wrapper" style="padding-bottom:.5rem;">
+        <div class="chart-container">
+          <canvas id="risk-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="log-table-wrap" id="log-table-wrapper">
+        <div class="log-empty" id="log-empty">ยังไม่มีประวัติ — กด <strong>ประเมินความเสี่ยง</strong> เพื่อเริ่มต้น
+        </div>
+        <table class="log-table" id="log-table" style="display:none;">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>ปี / เทอม</th>
+              <th>GPA เข้า</th>
+              <th>GPA ปัจจุบัน</th>
+              <th>ความเสี่ยง</th>
+              <th>ปลอดภัย</th>
+              <th>ผล</th>
+              <th>ความมั่นใจ</th>
+              <th>±std</th>
+            </tr>
+          </thead>
+          <tbody id="log-tbody"></tbody>
+        </table>
+      </div>
+    </div>
 
     <!-- ── Input Form Panel ── -->
     <div class="panel">
@@ -1099,6 +1234,231 @@
 
   </aside>
   </div><!-- /workspace -->
+
+  <script>
+    /* ══════════════════════════════════════════════
+       History Log + Chart — fully client-side
+       ══════════════════════════════════════════════ */
+    (function () {
+      const LOG_KEY = 'sra_history_v1';
+
+      /* ── Load / Save ── */
+      function loadLog() {
+        try { return JSON.parse(localStorage.getItem(LOG_KEY)) || []; }
+        catch { return []; }
+      }
+      function saveLog(entries) {
+        localStorage.setItem(LOG_KEY, JSON.stringify(entries));
+      }
+
+      /* ── Push new result from server (injected via Jinja) ── */
+      const newResult = {{ result | tojson if result else 'null'
+    }};
+    const newForm = {{ form   | tojson if form   else 'null' }};
+
+    if (newResult && newForm) {
+      const entries = loadLog();
+      /* Avoid duplicate if user reloads the same result page */
+      const last = entries[entries.length - 1];
+      const isDup = last &&
+        last.period_label === newForm.period_label &&
+        last.gpa === newForm.gpa &&
+        last.gpa_at_year === newForm.gpa_at_year &&
+        last.risk_percent === newResult.risk_percent;
+      if (!isDup) {
+        entries.push({
+          period_label: newForm.period_label,
+          gpa: newForm.gpa,
+          gpa_at_year: newForm.gpa_at_year,
+          risk_percent: newResult.risk_percent,
+          success_percent: newResult.success_percent,
+          label: newResult.label,
+          confidence: newResult.confidence,
+          perturb_std: newResult.perturb_std,
+        });
+        saveLog(entries);
+      }
+    }
+
+    /* ── Chart instance ── */
+    let chartInstance = null;
+
+    /* ── Render table + chart ── */
+    function renderLog() {
+      const entries = loadLog();
+      const empty = document.getElementById('log-empty');
+      const table = document.getElementById('log-table');
+      const tbody = document.getElementById('log-tbody');
+      const badge = document.getElementById('log-count-badge');
+
+      badge.textContent = entries.length > 0 ? `${entries.length} รายการ` : '';
+
+      if (entries.length === 0) {
+        empty.style.display = 'block';
+        table.style.display = 'none';
+        renderChart([]);
+        return;
+      }
+
+      empty.style.display = 'none';
+      table.style.display = 'table';
+
+      tbody.innerHTML = entries.map((e, i) => {
+        const cls = e.risk_percent >= 50 ? 'danger' : 'safe';
+        return `<tr>
+            <td style="color:var(--text-3);">${i + 1}</td>
+            <td><strong>${e.period_label}</strong></td>
+            <td>${Number(e.gpa).toFixed(2)}</td>
+            <td>${Number(e.gpa_at_year).toFixed(2)}</td>
+            <td class="td-risk ${cls}">${e.risk_percent}%</td>
+            <td style="color:var(--safe);font-family:'IBM Plex Mono',monospace;font-weight:600;">${e.success_percent}%</td>
+            <td><span class="badge ${cls === 'danger' ? 'low' : 'high'}">${e.label}</span></td>
+            <td>${e.confidence}</td>
+            <td style="color:var(--text-3);font-family:'IBM Plex Mono',monospace;">±${e.perturb_std}%</td>
+          </tr>`;
+      }).join('');
+
+      renderChart(entries);
+    }
+
+    /* ── Chart ── */
+    const PERIOD_ORDER = [
+      'ปี 1 เทอม 1', 'ปี 1 เทอม 2',
+      'ปี 2 เทอม 1', 'ปี 2 เทอม 2',
+      'ปี 3 เทอม 1', 'ปี 3 เทอม 2',
+      'ปี 4 เทอม 1', 'ปี 4 เทอม 2',
+    ];
+
+    function renderChart(entries) {
+      const canvas = document.getElementById('risk-chart');
+      if (!canvas) return;
+
+      /* Build per-period averages (in case user predicts same period multiple times) */
+      const buckets = {};
+      entries.forEach(e => {
+        if (!buckets[e.period_label]) buckets[e.period_label] = [];
+        buckets[e.period_label].push(e.risk_percent);
+      });
+
+      /* Sort labels by canonical period order */
+      const labels = Object.keys(buckets).sort(
+        (a, b) => PERIOD_ORDER.indexOf(a) - PERIOD_ORDER.indexOf(b)
+      );
+      const data = labels.map(l => {
+        const arr = buckets[l];
+        return arr.reduce((s, v) => s + v, 0) / arr.length;
+      });
+
+      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+      const gridColor = isDark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.06)';
+      const textColor = isDark ? '#64748b' : '#94a3b8';
+
+      if (chartInstance) chartInstance.destroy();
+
+      if (labels.length === 0) {
+        document.getElementById('chart-wrapper').style.display = 'none';
+        return;
+      }
+      document.getElementById('chart-wrapper').style.display = 'block';
+
+      /* Gradient fill */
+      const ctx = canvas.getContext('2d');
+      const grad = ctx.createLinearGradient(0, 0, 0, 200);
+      grad.addColorStop(0, 'rgba(220,38,38,.35)');
+      grad.addColorStop(0.5, 'rgba(220,38,38,.1)');
+      grad.addColorStop(1, 'rgba(220,38,38,.0)');
+
+      const pointColors = data.map(v => v >= 50 ? '#dc2626' : '#059669');
+
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: '% ความเสี่ยงพ้นสภาพ',
+            data,
+            borderColor: '#2563eb',
+            backgroundColor: grad,
+            pointBackgroundColor: pointColors,
+            pointBorderColor: pointColors,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            borderWidth: 2.5,
+            tension: 0.35,
+            fill: true,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => ` ความเสี่ยง: ${ctx.parsed.y.toFixed(1)}%`,
+                afterLabel: ctx => ctx.parsed.y >= 50 ? ' ⚠ เสี่ยงพ้นสภาพ' : ' ✓ ปลอดภัย',
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: gridColor },
+              ticks: { color: textColor, font: { family: "'IBM Plex Sans Thai', sans-serif", size: 11 } }
+            },
+            y: {
+              min: 0, max: 100,
+              grid: { color: gridColor },
+              ticks: {
+                color: textColor,
+                font: { family: "'IBM Plex Mono', monospace", size: 11 },
+                callback: v => v + '%'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    /* ── Reset ── */
+    window.resetLog = function () {
+      if (!confirm(
+        'รีเซ็ตข้อมูลนักศึกษา?\n\nสิ่งที่จะถูกล้าง:\n• ผลการประเมินความเสี่ยง\n• ประวัติ + กราฟแนวโน้ม\n• ช่องกรอกข้อมูลนักศึกษาทั้งหมด'
+      )) return;
+
+      /* 1. ล้าง history + chart */
+      localStorage.removeItem(LOG_KEY);
+      renderLog();
+
+      /* 2. ซ่อน Result Panel */
+      var rp = document.getElementById('result-panel');
+      if (rp) {
+        rp.style.transition = 'opacity .3s';
+        rp.style.opacity = '0';
+        setTimeout(function () { rp.style.display = 'none'; }, 300);
+      }
+
+      /* 3. ล้างฟอร์ม */
+      var form = document.getElementById('predict-form');
+      if (form) form.reset();
+      /* ล้าง combobox โรงเรียน (hidden + visible input) */
+      var scSearch = document.getElementById('sc-search');
+      var scVal = document.getElementById('sc-val');
+      if (scSearch) { scSearch.value = ''; scSearch.style.borderColor = ''; }
+      if (scVal) { scVal.value = ''; }
+    };
+
+    /* Re-render chart when theme toggles */
+    const _origToggle = window.toggleTheme;
+    window.toggleTheme = function () {
+      _origToggle && _origToggle();
+      setTimeout(renderLog, 50);
+    };
+
+    /* Boot */
+    renderLog();
+    }) ();
+  </script>
 
   <script>
     (function () {
