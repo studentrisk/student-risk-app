@@ -13,9 +13,11 @@ from firebase_admin import credentials, auth
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from model_loader import predict_risk_with_perturbation, get_school_list
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 # โหลดรายชื่อโรงเรียนครั้งเดียวตอนเริ่มต้น
