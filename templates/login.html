@@ -652,15 +652,45 @@
         return;
       }
 
-      document.getElementById('email-display').textContent = email;
-      document.getElementById('email-avatar').textContent = email[0].toUpperCase();
-      document.getElementById('step-1').classList.remove('active');
-      document.getElementById('step-2').classList.add('active');
-      document.getElementById('dot-1').className = 'step-dot done';
-      document.getElementById('dot-1').textContent = '✓';
-      document.getElementById('line-1').className = 'step-line done';
-      document.getElementById('dot-2').className = 'step-dot active';
-      setTimeout(() => document.getElementById('password-input').focus(), 50);
+      // ── ตรวจสอบว่าอีเมลมีในระบบ Firebase ก่อนไป Step 2 ──
+      setLoading('btn-next', true);
+
+      firebase.auth().fetchSignInMethodsForEmail(email)
+        .then(function (methods) {
+          setLoading('btn-next', false);
+
+          if (!methods || methods.length === 0) {
+            // ไม่พบอีเมลในระบบ — แสดง error และอยู่ที่ Step 1
+            showError('ไม่พบบัญชีอีเมลนี้ในระบบ — กรุณาตรวจสอบและกรอกอีเมลใหม่', false);
+            const emailInput = document.getElementById('email-input');
+            emailInput.style.borderColor = '#ef4444';
+            emailInput.focus();
+            emailInput.select();
+            return;
+          }
+
+          // พบอีเมลในระบบ — ไปยัง Step 2
+          document.getElementById('email-input').style.borderColor = '';
+          document.getElementById('email-display').textContent = email;
+          document.getElementById('email-avatar').textContent = email[0].toUpperCase();
+          document.getElementById('step-1').classList.remove('active');
+          document.getElementById('step-2').classList.add('active');
+          document.getElementById('dot-1').className = 'step-dot done';
+          document.getElementById('dot-1').textContent = '✓';
+          document.getElementById('line-1').className = 'step-line done';
+          document.getElementById('dot-2').className = 'step-dot active';
+          setTimeout(() => document.getElementById('password-input').focus(), 50);
+        })
+        .catch(function (err) {
+          setLoading('btn-next', false);
+          const code = err.code || '';
+          if (code === 'auth/invalid-email') {
+            showError('รูปแบบอีเมลไม่ถูกต้อง');
+          } else {
+            showError('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง: ' + err.message);
+          }
+          document.getElementById('email-input').focus();
+        });
     }
 
     // ── Sign In ────────────────────────────────────────────────────────
