@@ -8,10 +8,10 @@ os.environ["LOKY_MAX_CPU_COUNT"] = "1"
 os.environ["JOBLIB_MULTIPROCESSING"] = "0"
 import json
 import firebase_admin
-from firebase_admin import credentials, auth
+from firebase_admin import credentials, auth, firestore
 
 from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from fastapi.responses import HTMLResponse, RedirectResponse, Response, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from model_loader import predict_risk_with_perturbation, get_school_list
@@ -133,3 +133,68 @@ def predict(
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"
     response.headers["Pragma"] = "no-cache"
     return response
+
+
+# ==========================================
+# 📦 History API — ผูกกับบัญชี (Firestore)
+# ==========================================
+
+def get_db():
+    return firestore.client()
+
+
+@app.get("/history")
+async def get_history(request: Request):
+    """ดึงประวัติการประเมินทั้งหมดของ user ที่ login อยู่"""
+    user = get_current_user(request)
+    if not user:
+        return JSONResponse({"entries": []}, status_code=401)
+    uid = user["uid"]
+    db = get_db()
+    doc = db.collection("user_history").document(uid).get()
+    if doc.exists:
+        return JSONResponse({"entries": doc.to_dict().get("entries", [])})
+    return JSONResponse({"entries": []})
+
+
+@app.post("/history/add")
+async def add_history(request: Request):
+    """เพิ่ม entry ใหม่ลงประวัติของ user"""
+    user = get_current_user(request)
+    if not user:
+        return JSONResponse({"ok": False}, status_code=401)
+    uid = user["uid"]
+    body = await request.json()
+    db = get_db()
+    doc_ref = db.collection("user_history").document(uid)
+    doc = doc_ref.get()
+    entries = doc.to_dict().get("entries", []) if doc.exists else []
+
+    # ป้องกัน duplicate: ถ้า entry ล่าสุดเหมือนกันทุกฟิลด์ ไม่เพิ่ม
+    new_entry = body.get("entry", {})
+    if entries:
+        last = entries[-1]
+        is_dup = (
+            last.get("period_label") == new_entry.get("period_label") and
+            last.get("gpa") == new_entry.get("gpa") and
+            last.get("gpa_at_year") == new_entry.get("gpa_at_year") and
+            last.get("risk_percent") == new_entry.get("risk_percent")
+        )
+        if is_dup:
+            return JSONResponse({"ok": True, "duplicate": True})
+
+    entries.append(new_entry)
+    doc_ref.set({"entries": entries})
+    return JSONResponse({"ok": True, "count": len(entries)})
+
+
+@app.delete("/history")
+async def delete_history(request: Request):
+    """ลบประวัติทั้งหมดของ user"""
+    user = get_current_user(request)
+    if not user:
+        return JSONResponse({"ok": False}, status_code=401)
+    uid = user["uid"]
+    db = get_db()
+    db.collection("user_history").document(uid).set({"entries": []})
+    return JSONResponse({"ok": True})

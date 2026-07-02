@@ -325,55 +325,21 @@
 
   <script>
     /* ══════════════════════════════════════════════
-       History Log + Chart — fully client-side
+       History Log + Chart — server-side (Firestore)
+       ข้อมูลผูกกับบัญชี ไม่ใช่เครื่อง
        ══════════════════════════════════════════════ */
     (function () {
-      const LOG_KEY = 'sra_history_v1';
-
-      /* ── Load / Save ── */
-      function loadLog() {
-        try { return JSON.parse(localStorage.getItem(LOG_KEY)) || []; }
-        catch { return []; }
-      }
-      function saveLog(entries) {
-        localStorage.setItem(LOG_KEY, JSON.stringify(entries));
-      }
 
       /* ── Push new result from server (injected via Jinja) ── */
       const newResult = {{ result | tojson if result else 'null'
     }};
     const newForm = {{ form   | tojson if form   else 'null' }};
 
-    if (newResult && newForm) {
-      const entries = loadLog();
-      /* Avoid duplicate if user reloads the same result page */
-      const last = entries[entries.length - 1];
-      const isDup = last &&
-        last.period_label === newForm.period_label &&
-        last.gpa === newForm.gpa &&
-        last.gpa_at_year === newForm.gpa_at_year &&
-        last.risk_percent === newResult.risk_percent;
-      if (!isDup) {
-        entries.push({
-          period_label: newForm.period_label,
-          gpa: newForm.gpa,
-          gpa_at_year: newForm.gpa_at_year,
-          risk_percent: newResult.risk_percent,
-          success_percent: newResult.success_percent,
-          label: newResult.label,
-          confidence: newResult.confidence,
-          perturb_std: newResult.perturb_std,
-        });
-        saveLog(entries);
-      }
-    }
-
     /* ── Chart instance ── */
     let chartInstance = null;
 
-    /* ── Render table + chart ── */
-    function renderLog() {
-      const entries = loadLog();
+    /* ── Render table + chart จาก entries array ── */
+    function renderLogFromEntries(entries) {
       const empty = document.getElementById('log-empty');
       const table = document.getElementById('log-table');
       const tbody = document.getElementById('log-tbody');
@@ -406,6 +372,14 @@
       }).join('');
 
       renderChart(entries);
+    }
+
+    /* ── Load history จาก server แล้ว render ── */
+    function renderLog() {
+      fetch('/history')
+        .then(r => r.json())
+        .then(data => renderLogFromEntries(data.entries || []))
+        .catch(() => renderLogFromEntries([]));
     }
 
     /* ── Chart ── */
@@ -520,9 +494,9 @@
     window.confirmResetLog = function () {
       closeResetModal();
 
-      /* 1. ล้าง history + chart */
-      localStorage.removeItem(LOG_KEY);
-      renderLog();
+      /* 1. ลบ history บน server แล้วอัปเดต UI */
+      fetch('/history', { method: 'DELETE' })
+        .then(() => renderLog());
 
       /* 2. ซ่อน Result Panel */
       var rp = document.getElementById('result-panel');
@@ -549,10 +523,32 @@
       setTimeout(renderLog, 50);
     };
 
-    /* Boot */
-    renderLog();
+    /* ── Boot: ถ้ามีผลใหม่ ให้ save ก่อน แล้วค่อย render ── */
+    if (newResult && newForm) {
+      fetch('/history/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          entry: {
+            period_label: newForm.period_label,
+            gpa: newForm.gpa,
+            gpa_at_year: newForm.gpa_at_year,
+            risk_percent: newResult.risk_percent,
+            success_percent: newResult.success_percent,
+            label: newResult.label,
+            confidence: newResult.confidence,
+            perturb_std: newResult.perturb_std,
+          }
+        })
+      }).then(() => renderLog());
+    } else {
+      renderLog();
+    }
+
     }) ();
   </script>
+
+
 
   <script>
     (function () {
