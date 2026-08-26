@@ -213,8 +213,6 @@
               </label>
               <select name="period_label" id="inp-period" required>
                 <option value="" disabled {% if not form %}selected{% endif %}>— เลือกปี / เทอม —</option>
-                <option value="ปี 1 เทอม 1" {% if form and form.period_label=='ปี 1 เทอม 1' %}selected{% endif %}>ปี 1
-                  เทอม 1</option>
                 <option value="ปี 1 เทอม 2" {% if form and form.period_label=='ปี 1 เทอม 2' %}selected{% endif %}>ปี 1
                   เทอม 2</option>
                 <option value="ปี 2 เทอม 1" {% if form and form.period_label=='ปี 2 เทอม 1' %}selected{% endif %}>ปี 2
@@ -764,7 +762,8 @@
         </ul>
       </div>
       <div class="modal-footer">
-        <button class="btn-ghost" style="font-size: 14.5px; padding: 0 1.25rem;" onclick="closeResetModal()">ยกเลิก</button>
+        <button class="btn-ghost" style="font-size: 14.5px; padding: 0 1.25rem;"
+          onclick="closeResetModal()">ยกเลิก</button>
         <button class="btn-primary btn-danger" onclick="confirmResetLog()">ตกลง</button>
       </div>
     </div>
