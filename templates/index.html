@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ระบบประเมินความเสี่ยงการพ้นสภาพนักศึกษา — RMUTK</title>
+  <title>ระบบพยากรณ์ความเสี่ยงนักศึกษา — RMUTK</title>
   <meta name="description" content="ระบบพยากรณ์ความเสี่ยงนักศึกษาถูกรีไทน์ มหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ">
   <link
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
@@ -21,7 +21,7 @@
       <div class="logo-badge">RS</div>
       <div class="logo-text">
         <span class="logo-title">Student Risk System</span>
-        <span class="logo-sub">มทร.กรุงเทพ — ระบบประเมินความเสี่ยงนักศึกษา</span>
+        <span class="logo-sub">มทร.กรุงเทพ — ระบบพยากรณ์ความเสี่ยงนักศึกษา</span>
       </div>
     </a>
 
@@ -53,7 +53,7 @@
         ) %} {% set std_bar=[result.perturb_std * 2, 100] | min %} <div class="panel" id="result-panel">
         <div class="panel-header">
           <div class="panel-title">
-            ผลการประเมินความเสี่ยง
+            ผลการพยากรณ์ความเสี่ยง
           </div>
           <span class="badge {{ result.confidence_en }}">
             ความมั่นใจ: {{ result.confidence }}
@@ -70,7 +70,7 @@
                 {% if cls == 'danger' %}นักศึกษามีความเสี่ยงสูงต่อการพ้นสภาพ{% else %}นักศึกษาอยู่ในเกณฑ์ปลอดภัย{% endif
                 %}
               </div>
-              <div class="result-sub">ผลจาก {{ result.n_perturbations + 1 }} การทำนาย · Perturbation Smoothing</div>
+              <div class="result-sub">ผลจาก {{ result.n_perturbations + 1 }} การพยากรณ์ · ทดสอบซ้ำเพื่อความแม่นยำ</div>
             </div>
             <div>
               <div class="result-pct">{{ result.risk_percent }}%</div>
@@ -84,18 +84,18 @@
           </div>
           <div class="prog-labels">
             <span>ปลอดภัย {{ result.success_percent }}%</span>
-            <span>เสี่ยงพ้นสภาพ {{ result.risk_percent }}%</span>
+            <span>เสี่ยงถูกรีไทน์ {{ result.risk_percent }}%</span>
           </div>
 
           <!-- Metrics -->
           <div class="metrics-row">
             <div class="metric-cell">
               <div class="metric-value" style="color:var(--{{ cls }})">{{ result.risk_percent }}%</div>
-              <div class="metric-label">ความเสี่ยงพ้นสภาพ</div>
+              <div class="metric-label">โอกาสถูกรีไทน์</div>
             </div>
             <div class="metric-cell">
               <div class="metric-value" style="color:var(--text-2)">±{{ result.perturb_std }}%</div>
-              <div class="metric-label">ความเบี่ยงเบนผล</div>
+              <div class="metric-label">ความเสถียรของผล</div>
               <div class="stab-bar-track" style="margin-top:6px;">
                 <div class="stab-bar-fill {{ std_cls }}" style="width:{{ std_bar }}%"></div>
               </div>
@@ -115,18 +115,15 @@
 
         <div class="disclaimer" style="text-align: left;">
           <div style="text-align: center; margin-bottom: 8px;">
-            ผลการประเมินนี้เป็นเพียงการพยากรณ์จากโมเดล AI เพื่อสนับสนุนการตัดสินใจของอาจารย์ที่ปรึกษาเท่านั้น
+            ผลนี้เป็นการพยากรณ์จาก AI เพื่อช่วยอาจารย์ที่ปรึกษาวางแผนดูแลนักศึกษาเท่านั้น
             ไม่สามารถใช้แทนการตัดสินใจของมหาวิทยาลัยได้
           </div>
           <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 0;">
-          <strong style="color: var(--text-2);">คำอธิบายคำศัพท์ทางสถิติ:</strong>
+          <strong style="color: var(--text-2);">ความหมายของค่าต่าง ๆ:</strong>
           <ul style="padding-left: 1.5rem; margin-top: 5px; margin-bottom: 0;">
-            <li style="margin-bottom: 4px;"><b>ความเสี่ยงพ้นสภาพ (%):</b> โอกาสที่นักศึกษาจะพ้นสภาพ (หากเกิน 50%
-              ระบบจะแจ้งเตือนว่าเสี่ยง)</li>
-            <li style="margin-bottom: 4px;"><b>ความเบี่ยงเบนผล (±Std):</b> ส่วนเบี่ยงเบนมาตรฐานจากการจำลองรบกวนข้อมูล
-              (Perturbation) ค่ายิ่งน้อยแปลว่าผลทำนายยิ่งเสถียรและนิ่ง</li>
-            <li><b>ความมั่นใจ (Confidence):</b> ระดับความชัดเจนของการทำนาย คำนวณจากระยะห่างของความเสี่ยงเทียบกับจุดตัด
-              50%</li>
+            <li style="margin-bottom: 4px;"><b>โอกาสถูกรีไทน์ (%):</b> ยิ่งสูงยิ่งเสี่ยง — หากเกิน 50% ระบบจะแจ้งเตือนว่านักศึกษาอยู่ในกลุ่มเสี่ยง</li>
+            <li style="margin-bottom: 4px;"><b>ความเสถียรของผล (±%):</b> ค่ายิ่งน้อยแปลว่าผลพยากรณ์ยิ่งเชื่อถือได้ — ระบบทดสอบซ้ำหลายรอบเพื่อตรวจสอบความแม่นยำ</li>
+            <li><b>ความมั่นใจ:</b> ระดับความชัดเจนของผลพยากรณ์ — สูงหมายถึงผลห่างจากจุดกึ่งกลางมาก ทำนายได้ชัดเจน</li>
           </ul>
         </div>
     </div>
@@ -135,7 +132,7 @@
     <!-- ── History Log + Chart Panel ── -->
     <div class="panel" id="log-panel">
       <div class="panel-header">
-        <div class="panel-title">กราฟแนวโน้มความเสี่ยง (นักศึกษาปัจจุบัน)</div>
+        <div class="panel-title">กราฟแนวโน้มความเสี่ยงรีไทน์ (นักศึกษาปัจจุบัน)</div>
         <div class="panel-actions">
           <span id="log-count-badge" style="font-size:11px;color:var(--text-3);"></span>
           <button class="btn-reset" id="btn-reset" onclick="resetLog()"
@@ -154,7 +151,7 @@
 
       <!-- Table -->
       <div class="log-table-wrap" id="log-table-wrapper">
-        <div class="log-empty" id="log-empty">ยังไม่มีประวัติ — กด <strong>ประเมินความเสี่ยง</strong> เพื่อเริ่มต้น
+        <div class="log-empty" id="log-empty">ยังไม่มีประวัติ — กด <strong>พยากรณ์ความเสี่ยง</strong> เพื่อเริ่มต้น
         </div>
         <table class="log-table" id="log-table" style="display:none;">
           <thead>
@@ -166,7 +163,7 @@
               <th>ความเสี่ยง</th>
               <th>ผล</th>
               <th>ความมั่นใจ</th>
-              <th>±std</th>
+              <th>±เสถียร</th>
             </tr>
           </thead>
           <tbody id="log-tbody"></tbody>
@@ -276,7 +273,7 @@
           </div>
 
           <button type="submit" class="btn-primary" id="btn-submit">
-            ประเมินความเสี่ยง
+            พยากรณ์ความเสี่ยง
           </button>
         </form>
       </div>
@@ -434,7 +431,7 @@
         data: {
           labels,
           datasets: [{
-            label: '% ความเสี่ยงพ้นสภาพ',
+            label: '% โอกาสถูกรีไทน์',
             data,
             borderColor: '#2563eb',
             backgroundColor: grad,
@@ -455,7 +452,7 @@
             legend: { display: false },
             tooltip: {
               callbacks: {
-                label: ctx => ` ความเสี่ยง: ${ctx.parsed.y.toFixed(1)}%`
+                label: ctx => ` โอกาสถูกรีไทน์: ${ctx.parsed.y.toFixed(1)}%`
               }
             }
           },
@@ -604,7 +601,7 @@
       if (assessedAt) {
         html += `<div class="activity-entry">
           <div class="activity-dot"></div>
-          <span class="activity-text">ประเมินความเสี่ยงนักศึกษา</span>
+          <span class="activity-text">พยากรณ์ความเสี่ยงนักศึกษา</span>
           <span class="activity-time">เมื่อสักครู่</span>
         </div>`;
       }
@@ -618,7 +615,7 @@
       if (!assessedAt) {
         html += `<div class="activity-entry">
           <div class="activity-dot" style="background:var(--text-3)"></div>
-          <span class="activity-text" style="color:var(--text-3);font-style:italic;">ยังไม่มีการประเมิน</span>
+          <span class="activity-text" style="color:var(--text-3);font-style:italic;">ยังไม่มีการพยากรณ์</span>
         </div>`;
       }
 
@@ -756,7 +753,7 @@
       <div class="modal-body">
         <p>สิ่งที่จะถูกล้าง:</p>
         <ul>
-          <li>ผลการประเมินความเสี่ยง</li>
+          <li>ผลการพยากรณ์ความเสี่ยง</li>
           <li>ประวัติ + กราฟแนวโน้ม</li>
           <li>ช่องกรอกข้อมูลนักศึกษาทั้งหมด</li>
         </ul>
