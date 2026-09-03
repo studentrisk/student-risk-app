@@ -15,10 +15,19 @@ os.environ["NUMEXPR_NUM_THREADS"] = "1"
 os.environ["LOKY_MAX_CPU_COUNT"] = "1"
 os.environ["JOBLIB_MULTIPROCESSING"] = "0"
 
-# 2. คลาส StudentRiskEncoder ฉบับสมบูรณ์
+# 2. คลาส StudentRiskEncoder — ต้องตรงกับที่ใช้ train ใน ProjectV7.ipynb (Cell 15) ทุกประการ
+#
+# วิธีรับเข้า encoding (ปรับปรุงใหม่ — ตรวจตามลำดับ substring match):
+#   0 = โควตา        — มีคำว่า 'โควตา'       (โควตา-เรียนดี, โควตา-เครือข่าย, TCAS โควตา ฯลฯ)
+#   1 = สอบคัดเลือก  — มีคำว่า 'สอบคัดเลือก' (สอบตรง, รับตรง-สอบคัดเลือก ฯลฯ)
+#   2 = TCAS         — มีคำว่า 'tcas' แต่ไม่ใช่โควตา (Portfolio, รับตรง, สถานศึกษาเครือข่าย)
+#   3 = อื่นๆ        — ไม่ตรงกลุ่มใดข้างต้น (รับตรง ปวช./ปวส. ฯลฯ)
+#
+# วุฒิ (exact match):
+#   0 = ปวช. หรือ ม.6 (ทั้งคู่ถูก encode เป็น 0 ในชุดข้อมูล)
+#   1 = ปวส.
 class StudentRiskEncoder(BaseEstimator, TransformerMixin):
-    ADM_MAP = {'โควตา': 1, 'สอบคัดเลือก': 2, 'อื่นๆ': 0}
-    DEG_MAP = {'ปวช.': 1, 'มัธยมศึกษาตอนปลาย (ม.6)': 2, 'ปวส.': 3}
+    DEG_MAP = {'ปวช.': 0, 'มัธยมศึกษาตอนปลาย (ม.6)': 0, 'ปวส.': 1}
 
     def __init__(self, school_lookup=None):
         self.school_lookup = school_lookup if school_lookup is not None else {}
@@ -27,18 +36,35 @@ class StudentRiskEncoder(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        print("👉 [DEBUG] คอลัมน์ที่ส่งให้ AI คือ:", X.columns.tolist())
+        if isinstance(X, pd.DataFrame):
+            rows = X.to_dict(orient='records')
+        else:
+            rows = X
 
-        X_encoded = X.copy()
+        result = []
+        for row in rows:
+            # วิธีรับเข้า encoding ใหม่: ตรวจตามลำดับ substring match
+            # โควตา (0) → สอบคัดเลือก (1) → TCAS ไม่ใช่โควตา (2) → อื่นๆ (3)
+            adm_s = str(row.get('วิธีรับเข้า', ''))
+            if 'โควตา' in adm_s:
+                adm = 0          # โควตา ทุกประเภท รวม TCAS โควตา
+            elif 'สอบคัดเลือก' in adm_s:
+                adm = 1          # สอบคัดเลือก (ทุกประเภท)
+            elif 'tcas' in adm_s.lower():
+                adm = 2          # TCAS Portfolio / รับตรง / สถานศึกษาเครือข่าย
+            else:
+                adm = 3          # อื่นๆ (รับตรง ปวช./ปวส. ฯลฯ)
 
-        if 'วิธีรับเข้า' in X_encoded.columns:
-            X_encoded['วิธีรับเข้า'] = X_encoded['วิธีรับเข้า'].map(self.ADM_MAP).fillna(0)
-        if 'วุฒิ' in X_encoded.columns:
-            X_encoded['วุฒิ'] = X_encoded['วุฒิ'].map(self.DEG_MAP).fillna(0)
-        if 'จบการศึกษาจาก' in X_encoded.columns:
-            X_encoded['จบการศึกษาจาก'] = X_encoded['จบการศึกษาจาก'].map(self.school_lookup).fillna(0)
+            deg  = self.DEG_MAP.get(str(row.get('วุฒิ', '')), 0)
+            size = self.school_lookup.get(str(row.get('จบการศึกษาจาก', '')), -1)
+            gpa_pre  = float(row.get('คะแนนเฉลี่ยก่อนรับเข้า', 0))
+            gpa_curr = float(row.get('GPA ปัจจุบัน', 0))
+            period   = float(row.get('ปี/เทอม', 1.0))
 
-        return X_encoded
+            result.append([gpa_pre, adm, deg, size, gpa_curr, period])
+
+        # คืนค่าเป็น numpy array เหมือนที่ train มา (shape: n_samples × 6)
+        return np.array(result, dtype=float)
 
 # 3. หลอก Pickle ให้มองเห็นคลาสนี้ใน __main__
 sys.modules["__main__"].StudentRiskEncoder = StudentRiskEncoder
