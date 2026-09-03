@@ -235,10 +235,33 @@
               </label>
               <select name="admission" id="inp-admission" required>
                 <option value="" disabled {% if not form %}selected{% endif %}>— เลือกวิธีรับเข้า —</option>
-                <option value="โควตา" {% if form and form.admission=='โควตา' %}selected{% endif %}>โควตา</option>
-                <option value="สอบคัดเลือก" {% if form and form.admission=='สอบคัดเลือก' %}selected{% endif %}>
-                  สอบคัดเลือก</option>
-                <option value="อื่นๆ" {% if form and form.admission=='อื่นๆ' %}selected{% endif %}>อื่นๆ</option>
+                
+                <optgroup label="โควตา">
+                  <option value="โควตา-เรียนดี" {% if form and form.admission=='โควตา-เรียนดี' %}selected{% endif %}>โควตา-เรียนดี</option>
+                  <option value="โควตา-เครือข่าย" {% if form and form.admission=='โควตา-เครือข่าย' %}selected{% endif %}>โควตา-เครือข่าย</option>
+                  <option value="ระบบ TCAS รอบ Portfolio โควตา-เครือข่าย (วุฒิ ม.6)" {% if form and form.admission=='ระบบ TCAS รอบ Portfolio โควตา-เครือข่าย (วุฒิ ม.6)' %}selected{% endif %}>ระบบ TCAS รอบ Portfolio โควตา-เครือข่าย (วุฒิ ม.6)</option>
+                  <option value="ระบบ TCAS รอบ โควตา" {% if form and form.admission=='ระบบ TCAS รอบ โควตา' %}selected{% endif %}>ระบบ TCAS รอบ โควตา</option>
+                  <option value="โควตา ปวช./ปวส." {% if form and form.admission=='โควตา ปวช./ปวส.' %}selected{% endif %}>โควตา ปวช./ปวส.</option>
+                </optgroup>
+                
+                <optgroup label="สอบคัดเลือก">
+                  <option value="สอบคัดเลือก-สมัครทางอินเทอร์เน็ต" {% if form and form.admission=='สอบคัดเลือก-สมัครทางอินเทอร์เน็ต' %}selected{% endif %}>สอบคัดเลือก-สมัครทางอินเทอร์เน็ต</option>
+                  <option value="สอบคัดเลือก-สมัครผ่าน สกอ." {% if form and form.admission=='สอบคัดเลือก-สมัครผ่าน สกอ.' %}selected{% endif %}>สอบคัดเลือก-สมัครผ่าน สกอ.</option>
+                  <option value="รับตรง-สอบคัดเลือกกับคณะ" {% if form and form.admission=='รับตรง-สอบคัดเลือกกับคณะ' %}selected{% endif %}>รับตรง-สอบคัดเลือกกับคณะ</option>
+                </optgroup>
+                
+                <optgroup label="ระบบ TCAS">
+                  <option value="ระบบ TCAS รอบ Portfolio" {% if form and form.admission=='ระบบ TCAS รอบ Portfolio' %}selected{% endif %}>ระบบ TCAS รอบ Portfolio</option>
+                  <option value="ระบบ TCAS รอบ รับตรงร่วมกัน" {% if form and form.admission=='ระบบ TCAS รอบ รับตรงร่วมกัน' %}selected{% endif %}>ระบบ TCAS รอบ รับตรงร่วมกัน</option>
+                  <option value="ระบบ TCAS รอบ แอดมิชชั่น" {% if form and form.admission=='ระบบ TCAS รอบ แอดมิชชั่น' %}selected{% endif %}>ระบบ TCAS รอบ แอดมิชชั่น</option>
+                  <option value="ระบบ TCAS รอบ รับตรงอิสระ" {% if form and form.admission=='ระบบ TCAS รอบ รับตรงอิสระ' %}selected{% endif %}>ระบบ TCAS รอบ รับตรงอิสระ</option>
+                  <option value="TCAS สถานศึกษาเครือข่าย (สถานศึกษาส่งรายชื่อผู้สมัคร)" {% if form and form.admission=='TCAS สถานศึกษาเครือข่าย (สถานศึกษาส่งรายชื่อผู้สมัคร)' %}selected{% endif %}>TCAS สถานศึกษาเครือข่าย (สถานศึกษาส่งรายชื่อผู้สมัคร)</option>
+                </optgroup>
+                
+                <optgroup label="รับตรง / อื่นๆ">
+                  <option value="รับตรง ปวช./ปวส." {% if form and form.admission=='รับตรง ปวช./ปวส.' %}selected{% endif %}>รับตรง ปวช./ปวส.</option>
+                  <option value="สอบสัมภาษณ์+VNET- รับตรง (ปวช. , ปวส.)" {% if form and form.admission=='สอบสัมภาษณ์+VNET- รับตรง (ปวช. , ปวส.)' %}selected{% endif %}>สอบสัมภาษณ์+VNET- รับตรง (ปวช. , ปวส.)</option>
+                </optgroup>
               </select>
             </div>
 
